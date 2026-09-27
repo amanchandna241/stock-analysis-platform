@@ -224,8 +224,8 @@ export default function Navbar() {
                       className="w-full text-left p-4 rounded-2xl bg-[#1E293B]/60 hover:bg-blue-950/60 border border-gray-800 hover:border-blue-500/80 flex items-center justify-between transition-all group shadow-sm"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 rounded-xl bg-blue-950 text-blue-400 border border-blue-800/60 flex items-center justify-center font-black text-base group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                          {st.ticker.slice(0, 3)}
+                        <div className="w-12 h-11 rounded-xl bg-blue-950 text-blue-400 border border-blue-800/60 flex items-center justify-center font-black text-xs px-1 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                          {st.ticker}
                         </div>
                         <div>
                           <div className="font-black text-white text-lg group-hover:text-blue-400 flex items-center gap-2">
