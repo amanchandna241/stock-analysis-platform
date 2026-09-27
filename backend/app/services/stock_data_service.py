@@ -249,46 +249,49 @@ class StockDataService:
     def _fetch_live_market_data(cls, ticker: str) -> Optional[Dict[str, Any]]:
         """
         Queries Yahoo Finance live API for NSE/BSE & US equities.
-        Appends .NS for Indian tickers automatically if needed.
+        Tries symbols like TICKER.NS, TICKER.BO, or raw TICKER.
         """
-        try:
-            symbol = ticker if "." in ticker or ticker in ["AAPL", "MSFT", "NVDA", "GOOGL"] else f"{ticker}.NS"
-            t = yf.Ticker(symbol)
-            info = t.info
-            
-            if not info or 'regularMarketPrice' not in info and 'currentPrice' not in info:
-                return None
+        symbols_to_try = [ticker]
+        if "." not in ticker and ticker not in ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "TSLA"]:
+            symbols_to_try = [f"{ticker}.NS", f"{ticker}.BO", ticker]
 
-            curr_price = float(info.get('currentPrice') or info.get('regularMarketPrice') or 1000.0)
-            prev_close = float(info.get('regularMarketPreviousClose') or curr_price)
-            chg_amt = round(curr_price - prev_close, 2)
-            chg_pct = round((chg_amt / max(1.0, prev_close)) * 100.0, 2)
-            mcap_cr = round(float(info.get('marketCap') or 50000000000) / 10000000.0, 2) # convert to INR Cr
+        for symbol in symbols_to_try:
+            try:
+                t = yf.Ticker(symbol)
+                info = t.info
+                
+                if info and ('regularMarketPrice' in info or 'currentPrice' in info or 'shortName' in info):
+                    curr_price = float(info.get('currentPrice') or info.get('regularMarketPrice') or 1000.0)
+                    prev_close = float(info.get('regularMarketPreviousClose') or curr_price)
+                    chg_amt = round(curr_price - prev_close, 2)
+                    chg_pct = round((chg_amt / max(1.0, prev_close)) * 100.0, 2)
+                    mcap_cr = round(float(info.get('marketCap') or 50000000000) / 10000000.0, 2) # convert to INR Cr
 
-            # Use base template and update with live price quotes
-            base = cls.STOCKS_DB.get(ticker) or cls._generate_generic_stock(ticker)
-            merged = dict(base)
-            merged.update({
-                "ticker": ticker,
-                "name": info.get('longName') or info.get('shortName') or merged['name'],
-                "sector": info.get('sector') or merged['sector'],
-                "industry": info.get('industry') or merged['industry'],
-                "current_price": curr_price,
-                "change_amount": chg_amt,
-                "change_percent": chg_pct,
-                "market_cap_cr": mcap_cr,
-                "pe_ratio": round(float(info.get('trailingPE') or merged['pe_ratio']), 1),
-                "pb_ratio": round(float(info.get('priceToBook') or merged['pb_ratio']), 1),
-                "dividend_yield": round(float(info.get('dividendYield') or 0.01) * 100.0, 2),
-                "high_52w": float(info.get('fiftyTwoWeekHigh') or curr_price * 1.15),
-                "low_52w": float(info.get('fiftyTwoWeekLow') or curr_price * 0.80),
-                "business_summary": info.get('longBusinessSummary') or merged['business_summary'],
-                "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S IST") + " (Live Market Feed)"
-            })
-            return merged
-        except Exception as e:
-            print(f"Live Market Feed Exception for {ticker}: {e}")
-            return None
+                    base = cls.STOCKS_DB.get(ticker) or cls._generate_generic_stock(ticker)
+                    merged = dict(base)
+                    merged.update({
+                        "ticker": ticker,
+                        "bse_code": symbol,
+                        "name": info.get('longName') or info.get('shortName') or f"{ticker} Limited",
+                        "sector": info.get('sector') or merged['sector'],
+                        "industry": info.get('industry') or merged['industry'],
+                        "current_price": curr_price,
+                        "change_amount": chg_amt,
+                        "change_percent": chg_pct,
+                        "market_cap_cr": mcap_cr,
+                        "pe_ratio": round(float(info.get('trailingPE') or merged['pe_ratio']), 1),
+                        "pb_ratio": round(float(info.get('priceToBook') or merged['pb_ratio']), 1),
+                        "dividend_yield": round(float(info.get('dividendYield') or 0.01) * 100.0, 2),
+                        "high_52w": float(info.get('fiftyTwoWeekHigh') or curr_price * 1.15),
+                        "low_52w": float(info.get('fiftyTwoWeekLow') or curr_price * 0.80),
+                        "business_summary": info.get('longBusinessSummary') or merged['business_summary'],
+                        "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S IST") + " (Live Market Feed)"
+                    })
+                    return merged
+            except Exception:
+                continue
+
+        return None
 
     @classmethod
     def get_search_results(cls, query: str) -> List[Dict[str, Any]]:
@@ -305,11 +308,11 @@ class StockDataService:
                     "market_cap_cr": data['market_cap_cr']
                 })
 
-        # Try live search if query is 2+ chars and not matched yet
-        if not results and len(q) >= 2:
+        # Try live search if query is 2+ chars
+        if len(q) >= 2:
             live = cls._fetch_live_market_data(q)
-            if live:
-                results.append({
+            if live and not any(r['ticker'] == live['ticker'] for r in results):
+                results.insert(0, {
                     "ticker": live['ticker'],
                     "bse_code": live.get('bse_code', 'NSE'),
                     "name": live['name'],
@@ -336,9 +339,9 @@ class StockDataService:
         return {
             "ticker": ticker,
             "bse_code": "590001",
-            "name": f"{ticker} India Limited",
-            "sector": "Industrial Goods & Infrastructure",
-            "industry": "Engineering & Capital Goods",
+            "name": f"{ticker} Limited",
+            "sector": "Industrial Goods & Enterprise",
+            "industry": "Engineering & Technology",
             "current_price": 1450.0,
             "change_amount": 15.0,
             "change_percent": 1.05,
@@ -350,8 +353,8 @@ class StockDataService:
             "high_52w": 1600.0,
             "low_52w": 1100.0,
             "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S IST"),
-            "business_summary": f"{ticker} India Limited is an enterprise manufacturing and industrial solutions company serving domestic and export markets.",
-            "key_products": ["Industrial Systems", "Automation Components", "Export Assembly Solutions"],
+            "business_summary": f"{ticker} Limited is a premier enterprise providing domestic and international solutions across core business segments.",
+            "key_products": ["Enterprise Systems", "Automation Solutions", "Export Operations"],
             "financials_years": ["FY16", "FY17", "FY18", "FY19", "FY20", "FY21", "FY22", "FY23", "FY24", "FY25"],
             "revenue": [2000, 2200, 2500, 2900, 3100, 3000, 3800, 4600, 5200, 6000],
             "ebitda": [360, 400, 470, 560, 600, 570, 760, 950, 1100, 1320],
