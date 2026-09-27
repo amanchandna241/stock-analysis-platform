@@ -2,39 +2,44 @@
 
 A production-quality equity research and financial analysis platform focused on **Indian Equities (NSE/BSE)** and designed to scale globally to US and international markets.
 
-Functioning like a professional institutional equity research tool rather than a simple price dashboard, the application combines 10-year audited financial statements, Cash Flow red flag detection, interactive DCF valuation modeling, technical indicator analysis with NIFTY 50 benchmark overlays, Annual Report RAG intelligence, and AI-synthesized investment views.
+Functioning like a professional institutional equity research tool rather than a simple price dashboard, the application combines **live real-time market data feeds**, 10-year financial statements, automated Cash Flow red flag detection, interactive DCF valuation modeling with 5x5 sensitivity matrices, technical indicator analysis with NIFTY 50 benchmark overlays, Annual Report RAG intelligence, and AI-synthesized investment views.
 
 ---
 
 ## 🌟 Key Features
 
-### 1. 📊 Investment Snapshot & 10-Year Financial Statement Analysis
+### 1. ⚡ Live Real-Time Market Data Integration
+- **Live Price Quotes & Market Caps**: Connects to live exchange feeds (`yfinance`) for real-time stock prices, daily price changes, market caps, 52-week highs/lows, and corporate summaries.
+- **Global & Indian Equities Support**: Dynamically fetches data for any Indian ticker (`RELIANCE`, `SBIN`, `TCS`, `INFY`, `HDFCBANK`, `ICICIBANK`, `BHARTIARTL`) or US ticker (`AAPL`, `NVDA`, `MSFT`).
+- **Resilient Fallback Engine**: Seamlessly falls back to local data if exchange APIs rate-limit or go offline, guaranteeing high availability.
+
+### 2. 📊 Investment Snapshot & 10-Year Financial Statement Analysis
 - **Income Statement**: 10-year revenue, EBITDA, EBIT, PBT, PAT, EPS, and operating margin trends with interactive growth charts.
 - **Balance Sheet**: 10-year Cash, Debt, Net Debt, Receivables, Inventory, Payables, Assets, Equity, and solvency ratios (Debt/Equity, Net Debt/EBITDA, Interest Coverage, Current Ratio, Asset Turnover).
 - **Cash Flow Statement**: Operating Cash Flow (CFO), Capex, Free Cash Flow ($FCF = CFO - Capex$), CFI, CFF, Net Profit (PAT), and Working Capital.
 
-### 2. 🚨 Automated Cash Flow Red Flag Engine
+### 3. 🚨 Automated Cash Flow Red Flag Engine
 Identifies earnings quality risks and capital intensity warning signals:
 - **Divergence**: Net Profit (PAT) rising over 3 years while Free Cash Flow (FCF) declines.
 - **Cash Conversion Lag**: Operating Cash Flow consistently below Net Profit ($CFO / PAT < 0.8$).
 - **Working Capital Expansion**: Receivables/Inventory expanding faster than sales growth.
 
-### 3. 🧮 Configurable DCF Valuation Engine & Sensitivity Matrix
+### 4. 🧮 Configurable DCF Valuation Engine & Sensitivity Matrix
 - **Interactive Assumptions**: Sliders for Revenue Growth Rate, EBITDA Margin, Tax Rate, WACC Discount Rate, and Terminal Growth Rate.
 - **5x5 Sensitivity Matrix**: Automatically calculates a heatmap table displaying implied fair share prices across varying WACC and Terminal Growth rate combinations.
 - **Relative & Historical Valuation**: P/E, P/B, EV/EBITDA, Dividend Yield compared against sector median, peers, and 5-year historical percentiles.
 
-### 4. 📈 Technical Analysis & Benchmark Overlay
+### 5. 📈 Technical Analysis & Benchmark Overlay
 - **Indicators**: SMA 20/50/100/200, EMA 20/50, RSI 14, MACD, Bollinger Bands, ATR, Volume MA.
 - **Interactive Chart**: 1D, 1W, 1M, 3M, 6M, 1Y, 3Y, 5Y, MAX timeframes with **NIFTY 50 Benchmark Overlay**.
 - **Factual Pattern Identification**: Non-recommendatory pattern detection badges.
 - **Risk Metrics**: 1Y Absolute Return, Relative Return vs. Nifty, Annualized Volatility, Max Drawdown, and Sharpe Ratio ($R_f=6.5\%$).
 
-### 5. 📑 Filings & Annual Report RAG Intelligence
+### 6. 📑 Filings & Annual Report RAG Intelligence
 - Upload PDF/text Annual Reports, Investor Presentations, and Earnings Call Transcripts.
 - Ask natural language questions (*"Why did margins decline?"*, *"What are the key risks?"*) and receive grounded answers with **Document Name, Year, and Page Number Citations**.
 
-### 6. 🤖 Evidence-Based AI Investment Thesis
+### 7. 🤖 Evidence-Based AI Investment Thesis
 - Directly addresses the **14 Core Equity Research Questions**:
   1. What does this company do?
   2. Is the business growing?
@@ -65,6 +70,7 @@ Identifies earnings quality risks and capital intensity warning signals:
 
 ### **Backend**
 - **Framework**: Python 3.10 + FastAPI
+- **Market Data Feeds**: `yfinance`, `beautifulsoup4`, `lxml`
 - **Validation**: Pydantic v2
 - **Data Engines**: Pandas & NumPy
 - **Database ORM**: SQLAlchemy & SQLite/PostgreSQL
@@ -116,7 +122,7 @@ Frontend running at: `http://localhost:3000`
 
 ## ☁️ Enterprise Cloud Deployment (AWS & Databricks)
 
-The platform is designed for enterprise AWS deployment:
+The platform includes a complete **Terraform Infrastructure-as-Code (`/deployment/terraform`)** setup:
 - **AWS CloudFront**: CDN distribution for static Next.js assets.
 - **AWS S3**: Encrypted object store for raw PDF filings and chunked document vectors.
 - **AWS ECS / EKS**: Containerized microservices running FastAPI and Celery background workers.
@@ -125,7 +131,7 @@ The platform is designed for enterprise AWS deployment:
 - **AWS SQS & EventBridge**: Async queues for document RAG indexing & market data sync.
 - **Databricks Integration**: Unity Catalog connection for large-scale historical tick analytics and factor backtesting.
 
-See [`deployment/aws-architecture.md`](deployment/aws-architecture.md) for full CloudFormation/Terraform blueprints.
+See [`deployment/aws-architecture.md`](deployment/aws-architecture.md) for full CloudFormation/Terraform blueprints and run `./deployment/deploy.sh` to provision infrastructure.
 
 ---
 
