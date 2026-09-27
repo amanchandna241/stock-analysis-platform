@@ -3,23 +3,104 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { fetchApi } from '@/lib/api';
-import { TrendingUp, ArrowUpRight, ArrowDownRight, Bell, Calendar, Newspaper, Star, ShieldCheck, Flame } from 'lucide-react';
+import { TrendingUp, ArrowUpRight, ArrowDownRight, Bell, Calendar, Star, Flame, Plus, X, RefreshCw, Trash2, Sliders } from 'lucide-react';
 
 export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // Watchlist input states
+  const [newWatchlistTicker, setNewWatchlistTicker] = useState('');
+  const [addingWatchlist, setAddingWatchlist] = useState(false);
+  const [watchlistError, setWatchlistError] = useState<string | null>(null);
+
+  // Custom Alert input states
+  const [newAlertTicker, setNewAlertTicker] = useState('');
+  const [newAlertCondition, setNewAlertCondition] = useState('');
+  const [newAlertType, setNewAlertType] = useState('Valuation Opportunity');
+  const [addingAlert, setAddingAlert] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+
+  const loadDashboard = async () => {
+    try {
+      const res = await fetchApi<any>('/dashboard');
+      setData(res);
+    } catch (err) {
+      console.error('Failed to load dashboard:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchApi<any>('/dashboard')
-      .then((res) => {
-        setData(res);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Failed to load dashboard:', err);
-        setLoading(false);
-      });
+    loadDashboard();
   }, []);
+
+  const handleAddWatchlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const ticker = newWatchlistTicker.trim().toUpperCase();
+    if (!ticker) return;
+
+    if (data?.watchlist?.some((w: any) => w.ticker === ticker)) {
+      setWatchlistError(`Ticker '${ticker}' is already in your watchlist.`);
+      setTimeout(() => setWatchlistError(null), 3000);
+      return;
+    }
+
+    setAddingWatchlist(true);
+    try {
+      await fetchApi<any>(`/dashboard/watchlist/add?ticker=${encodeURIComponent(ticker)}`, { method: 'POST' });
+      setNewWatchlistTicker('');
+      setWatchlistError(null);
+      await loadDashboard();
+    } catch (err) {
+      setWatchlistError(`Failed to add ticker '${ticker}'. Verify ticker symbol.`);
+      setTimeout(() => setWatchlistError(null), 4000);
+    } finally {
+      setAddingWatchlist(false);
+    }
+  };
+
+  const handleRemoveWatchlist = async (ticker: string) => {
+    try {
+      await fetchApi<any>(`/dashboard/watchlist/remove?ticker=${encodeURIComponent(ticker)}`, { method: 'DELETE' });
+      await loadDashboard();
+    } catch (err) {
+      console.error('Failed to remove ticker from watchlist:', err);
+    }
+  };
+
+  const handleAddAlert = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const ticker = newAlertTicker.trim().toUpperCase();
+    const condition = newAlertCondition.trim();
+    if (!ticker || !condition) return;
+
+    setAddingAlert(true);
+    try {
+      await fetchApi<any>(
+        `/dashboard/alerts/add?ticker=${encodeURIComponent(ticker)}&condition=${encodeURIComponent(condition)}&alert_type=${encodeURIComponent(newAlertType)}`,
+        { method: 'POST' }
+      );
+      setNewAlertTicker('');
+      setNewAlertCondition('');
+      setShowAlertModal(false);
+      await loadDashboard();
+    } catch (err) {
+      console.error('Failed to create alert:', err);
+    } finally {
+      setAddingAlert(false);
+    }
+  };
+
+  const handleRemoveAlert = async (alertId: string) => {
+    try {
+      await fetchApi<any>(`/dashboard/alerts/remove?alert_id=${encodeURIComponent(alertId)}`, { method: 'DELETE' });
+      await loadDashboard();
+    } catch (err) {
+      console.error('Failed to remove alert:', err);
+    }
+  };
 
   if (loading) {
     return (
@@ -38,7 +119,7 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#131822] border border-[#1E2638] p-6 rounded-2xl">
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">Professional Equity Research Dashboard</h1>
-          <p className="text-xs text-gray-400 mt-1">Institutional fundamental analysis, 10-year financial metrics, DCF models, and RAG filings for Indian Equities.</p>
+          <p className="text-xs text-gray-400 mt-1">Institutional fundamental analysis, 10-year financial metrics, DCF models, and dynamic watchlist tracking.</p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <Link href="/stock/RELIANCE" className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors shadow-lg shadow-blue-500/20">
@@ -135,11 +216,48 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Watchlist & Portfolio Grid */}
+      {/* Watchlist & Alerts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Watchlist */}
-        <div className="bg-[#131822] border border-[#1E2638] p-6 rounded-2xl">
-          <h3 className="text-base font-bold text-white mb-4">Core Indian Equities Coverage Watchlist</h3>
+        {/* Dynamic Watchlist Component */}
+        <div className="bg-[#131822] border border-[#1E2638] p-6 rounded-2xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1E2638] pb-4">
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                Dynamic Equities Watchlist
+                <span className="text-xs bg-blue-950 text-blue-300 font-bold px-2 py-0.5 rounded-full border border-blue-800">
+                  {data.watchlist?.length || 0} Stocks
+                </span>
+              </h3>
+              <p className="text-xs text-gray-400 mt-0.5">Customize your live market watchlist. Add any Indian (e.g. TATAMOTORS) or global ticker.</p>
+            </div>
+
+            {/* Inline Add Ticker Form */}
+            <form onSubmit={handleAddWatchlist} className="flex items-center gap-2 shrink-0">
+              <input
+                type="text"
+                placeholder="Add Ticker..."
+                value={newWatchlistTicker}
+                onChange={(e) => setNewWatchlistTicker(e.target.value)}
+                style={{ color: '#FFFFFF', backgroundColor: '#0B0E14' }}
+                className="text-xs font-bold text-white placeholder-gray-400 px-3 py-1.5 rounded-xl border border-[#1E2638] focus:outline-none focus:border-blue-500 uppercase w-36"
+              />
+              <button
+                type="submit"
+                disabled={addingWatchlist}
+                className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
+              >
+                {addingWatchlist ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                <span>Add</span>
+              </button>
+            </form>
+          </div>
+
+          {watchlistError && (
+            <div className="p-2.5 bg-red-950/40 border border-red-800/50 rounded-xl text-xs text-red-300">
+              {watchlistError}
+            </div>
+          )}
+
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
@@ -148,26 +266,35 @@ export default function DashboardPage() {
                   <th className="py-2.5 px-3 text-right">Price</th>
                   <th className="py-2.5 px-3 text-right">Change</th>
                   <th className="py-2.5 px-3 text-right">P/E</th>
-                  <th className="py-2.5 px-3 text-right">Action</th>
+                  <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1E2638]/50 text-gray-300">
                 {data.watchlist.map((w: any) => (
-                  <tr key={w.ticker} className="hover:bg-[#1E2638]/40">
+                  <tr key={w.ticker} className="hover:bg-[#1E2638]/40 transition-colors">
                     <td className="py-2.5 px-3">
                       <Link href={`/stock/${w.ticker}`} className="font-bold text-white hover:text-blue-400">
                         {w.ticker} <span className="text-gray-400 font-normal text-[11px]">({w.name})</span>
                       </Link>
                     </td>
-                    <td className="py-2.5 px-3 text-right font-semibold">₹{w.price}</td>
+                    <td className="py-2.5 px-3 text-right font-semibold text-white">₹{w.price}</td>
                     <td className={`py-2.5 px-3 text-right font-bold ${w.change_pct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                       {w.change_pct >= 0 ? `+${w.change_pct}%` : `${w.change_pct}%`}
                     </td>
                     <td className="py-2.5 px-3 text-right text-gray-400">{w.pe_ratio}x</td>
                     <td className="py-2.5 px-3 text-right">
-                      <Link href={`/stock/${w.ticker}`} className="text-blue-400 hover:text-blue-300 font-medium text-[11px]">
-                        Research →
-                      </Link>
+                      <div className="flex items-center justify-end gap-3">
+                        <Link href={`/stock/${w.ticker}`} className="text-blue-400 hover:text-blue-300 font-medium text-[11px]">
+                          Research →
+                        </Link>
+                        <button
+                          onClick={() => handleRemoveWatchlist(w.ticker)}
+                          className="text-gray-500 hover:text-red-400 p-1 rounded transition-colors"
+                          title="Remove from Watchlist"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -176,7 +303,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Corporate Actions & Earnings Calendar */}
+        {/* Corporate Actions & Active Valuation Alerts */}
         <div className="bg-[#131822] border border-[#1E2638] p-6 rounded-2xl space-y-6">
           <div>
             <h3 className="text-base font-bold text-white mb-3 flex items-center gap-2">
@@ -195,19 +322,86 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Active Alerts */}
+          {/* Active Alerts Component */}
           <div>
-            <h3 className="text-base font-bold text-white mb-3 flex items-center gap-2">
-              <Bell className="w-4 h-4 text-amber-400" /> Active Valuation & Signal Alerts
-            </h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Bell className="w-4 h-4 text-amber-400" /> Active Valuation & Signal Alerts
+              </h3>
+              <button
+                onClick={() => setShowAlertModal(!showAlertModal)}
+                className="text-xs bg-amber-950 text-amber-300 hover:bg-amber-900 border border-amber-800/60 px-2.5 py-1 rounded-xl font-bold flex items-center gap-1 transition-colors"
+              >
+                <Plus className="w-3 h-3" /> New Alert
+              </button>
+            </div>
+
+            {/* Custom Alert Modal / Inline Form */}
+            {showAlertModal && (
+              <form onSubmit={handleAddAlert} className="bg-[#0B0E14] p-4 rounded-xl border border-amber-800/40 mb-3 space-y-3">
+                <div className="flex justify-between items-center text-xs font-bold text-amber-300">
+                  <span>Create Custom Valuation / Signal Alert</span>
+                  <button type="button" onClick={() => setShowAlertModal(false)} className="text-gray-400 hover:text-white">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Ticker (e.g. TCS)"
+                    value={newAlertTicker}
+                    onChange={(e) => setNewAlertTicker(e.target.value)}
+                    style={{ color: '#FFFFFF', backgroundColor: '#131822' }}
+                    className="text-xs font-bold text-white placeholder-gray-400 px-3 py-1.5 rounded-lg border border-[#1E2638] focus:outline-none uppercase"
+                  />
+                  <select
+                    value={newAlertType}
+                    onChange={(e) => setNewAlertType(e.target.value)}
+                    style={{ color: '#FFFFFF', backgroundColor: '#131822' }}
+                    className="text-xs font-bold text-white px-3 py-1.5 rounded-lg border border-[#1E2638] focus:outline-none"
+                  >
+                    <option value="Valuation Opportunity">Valuation Opportunity</option>
+                    <option value="Breakout">Breakout</option>
+                    <option value="Target Price Hit">Target Price Hit</option>
+                    <option value="Earnings Signal">Earnings Signal</option>
+                  </select>
+                  <button
+                    type="submit"
+                    disabled={addingAlert}
+                    className="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-colors disabled:opacity-50"
+                  >
+                    {addingAlert ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                    <span>Save Alert</span>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Condition (e.g. P/E dropped below 22x or target ₹3,500 hit)"
+                  value={newAlertCondition}
+                  onChange={(e) => setNewAlertCondition(e.target.value)}
+                  style={{ color: '#FFFFFF', backgroundColor: '#131822' }}
+                  className="w-full text-xs text-white placeholder-gray-400 px-3 py-1.5 rounded-lg border border-[#1E2638] focus:outline-none"
+                />
+              </form>
+            )}
+
             <div className="space-y-2">
-              {data.alerts.map((alt: any) => (
-                <div key={alt.id} className="bg-amber-950/30 p-3 rounded-xl border border-amber-800/40 text-xs flex justify-between items-center">
+              {data.alerts?.map((alt: any) => (
+                <div key={alt.id} className="bg-amber-950/30 p-3 rounded-xl border border-amber-800/40 text-xs flex justify-between items-center group">
                   <div>
                     <span className="font-bold text-amber-300 mr-2">{alt.ticker}</span>
                     <span className="text-gray-200">{alt.condition}</span>
                   </div>
-                  <span className="text-[10px] bg-amber-900 text-amber-200 px-2 py-0.5 rounded font-bold uppercase">{alt.type}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] bg-amber-900 text-amber-200 px-2 py-0.5 rounded font-bold uppercase">{alt.type}</span>
+                    <button
+                      onClick={() => handleRemoveAlert(alt.id)}
+                      className="text-gray-400 hover:text-red-400 p-0.5 transition-colors"
+                      title="Dismiss Alert"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

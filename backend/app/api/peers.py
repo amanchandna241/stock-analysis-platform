@@ -32,7 +32,7 @@ def get_peer_comparison(ticker: str, custom_peers: Optional[str] = Query(None)):
     all_tickers = [ticker.upper()] + [p for p in peer_tickers if p != ticker.upper()]
     rows = []
 
-    for t in all_tickers[:5]:
+    for t in all_tickers[:15]:
         st_data = StockDataService.get_stock_overview(t)
         if not st_data:
             continue

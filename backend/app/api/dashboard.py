@@ -1,12 +1,27 @@
-from fastapi import APIRouter
-from typing import List, Dict, Any
+from fastapi import APIRouter, Query, HTTPException
+from typing import List, Optional, Dict, Any
 from app.services.stock_data_service import StockDataService
 from app.schemas.stock import DashboardResponse, MarketIndex, WatchlistItem, NewsArticle
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
+# Stateful User Preferences Storage (In-Memory & Extendable to DB)
+USER_PREFERENCES = {
+    "watchlist": ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "BHARTIARTL", "SBIN"],
+    "alerts": [
+        {"id": "ALT1", "ticker": "RELIANCE", "condition": "P/E crossed below 5Y Median (24.0x)", "type": "Valuation Opportunity", "status": "Active"},
+        {"id": "ALT2", "ticker": "BHARTIARTL", "condition": "Stock hit 52-Week High territory", "type": "Breakout", "status": "Active"}
+    ]
+}
+
 @router.get("", response_model=DashboardResponse)
-def get_dashboard():
+def get_dashboard(
+    custom_tickers: Optional[str] = Query(None, description="Comma-separated custom watchlist tickers")
+):
+    """
+    Returns a dynamic dashboard with live market quotes, user-configured watchlists,
+    top gainers/losers, 52W highs/lows, corporate actions, and alert feeds.
+    """
     indices = [
         MarketIndex(name="NIFTY 50", value=25380.40, change=142.50, change_pct=0.56),
         MarketIndex(name="SENSEX", value=82950.15, change=410.20, change_pct=0.50),
@@ -14,23 +29,52 @@ def get_dashboard():
         MarketIndex(name="NIFTY IT", value=42150.30, change=-180.40, change_pct=-0.43)
     ]
 
+    # Resolve active watchlist tickers based on user preference
+    if custom_tickers:
+        watchlist_tickers = [t.strip().upper() for t in custom_tickers.split(",") if t.strip()]
+    else:
+        watchlist_tickers = USER_PREFERENCES["watchlist"]
+
+    # Dynamically build watchlist with live price quotes
+    watchlist_items: List[WatchlistItem] = []
+    for t in watchlist_tickers:
+        st_data = StockDataService.get_stock_overview(t)
+        if st_data:
+            watchlist_items.append(WatchlistItem(
+                ticker=st_data['ticker'],
+                name=st_data['name'],
+                price=st_data['current_price'],
+                change_pct=st_data['change_percent'],
+                pe_ratio=st_data['pe_ratio'],
+                market_cap_cr=st_data['market_cap_cr']
+            ))
+
+    # Dynamically derive Gainers, Losers, 52W Highs/Lows from active universe
+    all_stocks = [StockDataService.get_stock_overview(t) for t in ["ICICIBANK", "BHARTIARTL", "RELIANCE", "TCS", "INFY", "HDFCBANK", "SBIN"]]
+    valid_stocks = [s for s in all_stocks if s]
+
+    sorted_by_change = sorted(valid_stocks, key=lambda x: x['change_percent'], reverse=True)
+    
     gainers = [
-        WatchlistItem(ticker="ICICIBANK", name="ICICI Bank", price=1240.20, change_pct=1.27, pe_ratio=18.2, market_cap_cr=872500.0),
-        WatchlistItem(ticker="BHARTIARTL", name="Bharti Airtel", price=1565.00, change_pct=1.18, pe_ratio=45.0, market_cap_cr=925000.0),
-        WatchlistItem(ticker="RELIANCE", name="Reliance Industries", price=2985.40, change_pct=0.83, pe_ratio=28.4, market_cap_cr=2019840.0)
-    ]
+        WatchlistItem(
+            ticker=s['ticker'], name=s['name'], price=s['current_price'],
+            change_pct=s['change_percent'], pe_ratio=s['pe_ratio'], market_cap_cr=s['market_cap_cr']
+        ) for s in sorted_by_change if s['change_percent'] > 0
+    ][:3]
 
     losers = [
-        WatchlistItem(ticker="TCS", name="Tata Consultancy Services", price=4280.15, change_pct=-0.43, pe_ratio=32.1, market_cap_cr=1548200.0),
-        WatchlistItem(ticker="LT", name="Larsen & Toubro", price=3620.00, change_pct=-0.35, pe_ratio=31.2, market_cap_cr=510000.0)
-    ]
+        WatchlistItem(
+            ticker=s['ticker'], name=s['name'], price=s['current_price'],
+            change_pct=s['change_percent'], pe_ratio=s['pe_ratio'], market_cap_cr=s['market_cap_cr']
+        ) for s in reversed(sorted_by_change) if s['change_percent'] < 0
+    ][:3]
 
     high_52w = [
-        WatchlistItem(ticker="ICICIBANK", name="ICICI Bank", price=1240.20, change_pct=1.27, pe_ratio=18.2, market_cap_cr=872500.0),
-        WatchlistItem(ticker="BHARTIARTL", name="Bharti Airtel", price=1565.00, change_pct=1.18, pe_ratio=45.0, market_cap_cr=925000.0)
+        WatchlistItem(
+            ticker=s['ticker'], name=s['name'], price=s['current_price'],
+            change_pct=s['change_percent'], pe_ratio=s['pe_ratio'], market_cap_cr=s['market_cap_cr']
+        ) for s in valid_stocks if s['current_price'] >= s['high_52w'] * 0.95
     ]
-
-    low_52w = []
 
     recent_earnings = [
         {"ticker": "RELIANCE", "name": "Reliance Industries", "quarter": "Q1FY25", "revenue_yoy": "+16.3%", "pat_yoy": "+19.0%", "date": "2026-09-24"},
@@ -50,7 +94,7 @@ def get_dashboard():
             ticker="RELIANCE",
             headline="Reliance Retail Announces Strategic Expansion into Quick-Commerce Sector",
             source="Economic Times",
-            published_at="2026-09-27 10:15 IST",
+            published_at="2026-09-28 10:15 IST",
             category="M&A",
             summary="Reliance Retail launches immediate fulfillment centers across top 20 metro cities to expand retail digital delivery footprints.",
             url="https://economictimes.indiatimes.com"
@@ -60,23 +104,11 @@ def get_dashboard():
             ticker="TCS",
             headline="TCS Signs Multi-Year $800M Digital Transformation Contract with European Bank",
             source="Business Standard",
-            published_at="2026-09-27 09:30 IST",
+            published_at="2026-09-28 09:30 IST",
             category="Product",
             summary="Tata Consultancy Services secures a major mega-deal to modernize core banking IT infrastructure using TCS BaNCS software.",
             url="https://business-standard.com"
         )
-    ]
-
-    watchlist = [
-        WatchlistItem(ticker="RELIANCE", name="Reliance Industries", price=2985.40, change_pct=0.83, pe_ratio=28.4, market_cap_cr=2019840.0),
-        WatchlistItem(ticker="TCS", name="Tata Consultancy Services", price=4280.15, change_pct=-0.43, pe_ratio=32.1, market_cap_cr=1548200.0),
-        WatchlistItem(ticker="INFY", name="Infosys", price=1945.80, change_pct=0.64, pe_ratio=29.8, market_cap_cr=807400.0),
-        WatchlistItem(ticker="HDFCBANK", name="HDFC Bank", price=1680.50, change_pct=0.50, pe_ratio=18.9, market_cap_cr=1280000.0)
-    ]
-
-    alerts = [
-        {"id": "ALT1", "ticker": "RELIANCE", "condition": "P/E crossed below 5Y Median (24.0x)", "type": "Valuation Opportunity", "status": "Active"},
-        {"id": "ALT2", "ticker": "BHARTIARTL", "condition": "Stock hit 52-Week High territory (Rs 1,600)", "type": "Breakout", "status": "Active"}
     ]
 
     return DashboardResponse(
@@ -84,10 +116,48 @@ def get_dashboard():
         top_gainers=gainers,
         top_losers=losers,
         high_52w=high_52w,
-        low_52w=low_52w,
+        low_52w=[],
         recent_earnings=recent_earnings,
         corporate_actions=corporate_actions,
         recent_news=recent_news,
-        watchlist=watchlist,
-        alerts=alerts
+        watchlist=watchlist_items,
+        alerts=USER_PREFERENCES["alerts"]
     )
+
+@router.post("/watchlist/add")
+def add_to_watchlist(ticker: str = Query(..., min_length=1)):
+    """Dynamically add a stock ticker to user preference watchlist."""
+    t_clean = ticker.upper().strip()
+    if t_clean not in USER_PREFERENCES["watchlist"]:
+        USER_PREFERENCES["watchlist"].append(t_clean)
+    return {"status": "success", "message": f"{t_clean} added to watchlist.", "watchlist": USER_PREFERENCES["watchlist"]}
+
+@router.delete("/watchlist/remove")
+def remove_from_watchlist(ticker: str = Query(..., min_length=1)):
+    """Dynamically remove a stock ticker from user preference watchlist."""
+    t_clean = ticker.upper().strip()
+    if t_clean in USER_PREFERENCES["watchlist"]:
+        USER_PREFERENCES["watchlist"].remove(t_clean)
+    return {"status": "success", "message": f"{t_clean} removed from watchlist.", "watchlist": USER_PREFERENCES["watchlist"]}
+
+@router.post("/alerts/add")
+def add_alert(ticker: str = Query(...), condition: str = Query(...), alert_type: str = Query("Custom Alert")):
+    """Dynamically add a custom valuation or signal alert."""
+    t_clean = ticker.upper().strip()
+    alert_id = f"ALT{len(USER_PREFERENCES['alerts']) + 1}"
+    new_alert = {
+        "id": alert_id,
+        "ticker": t_clean,
+        "condition": condition.strip(),
+        "type": alert_type.strip(),
+        "status": "Active"
+    }
+    USER_PREFERENCES["alerts"].append(new_alert)
+    return {"status": "success", "message": f"Alert created for {t_clean}", "alerts": USER_PREFERENCES["alerts"]}
+
+@router.delete("/alerts/remove")
+def remove_alert(alert_id: str = Query(...)):
+    """Dynamically remove an alert by ID."""
+    USER_PREFERENCES["alerts"] = [a for a in USER_PREFERENCES["alerts"] if a.get("id") != alert_id]
+    return {"status": "success", "message": f"Alert {alert_id} removed", "alerts": USER_PREFERENCES["alerts"]}
+
