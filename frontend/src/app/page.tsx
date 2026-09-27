@@ -277,7 +277,9 @@ export default function DashboardPage() {
                         {w.ticker} <span className="text-gray-400 font-normal text-[11px]">({w.name})</span>
                       </Link>
                     </td>
-                    <td className="py-2.5 px-3 text-right font-semibold text-white">₹{w.price}</td>
+                    <td className="py-2.5 px-3 text-right font-semibold text-white">
+                      {w.currency === 'USD' ? '$' : '₹'}{w.price}
+                    </td>
                     <td className={`py-2.5 px-3 text-right font-bold ${w.change_pct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                       {w.change_pct >= 0 ? `+${w.change_pct}%` : `${w.change_pct}%`}
                     </td>

@@ -185,7 +185,9 @@ export default function PeerComparisonTab({ targetTicker, peers: initialPeers }:
                       )}
                     </div>
                   </td>
-                  <td className="py-3 px-3 text-right font-mono">₹{p.market_cap_cr.toLocaleString('en-IN')}</td>
+                  <td className="py-3 px-3 text-right font-mono">
+                    {p.currency === 'USD' ? '$' : '₹'}{p.market_cap_cr.toLocaleString('en-US')} {p.currency === 'USD' ? 'M' : 'Cr'}
+                  </td>
                   <td className="py-3 px-3 text-right font-mono">{p.revenue_growth_3y}%</td>
                   <td className="py-3 px-3 text-right font-mono">{p.ebitda_margin}%</td>
                   <td className="py-3 px-3 text-right font-mono">{p.pat_growth_3y}%</td>

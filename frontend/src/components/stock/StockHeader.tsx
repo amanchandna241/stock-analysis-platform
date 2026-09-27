@@ -65,7 +65,9 @@ export default function StockHeader({ overview }: StockHeaderProps) {
           </div>
 
           <div className="flex items-baseline lg:justify-end gap-2 mb-1">
-            <span className="text-3xl font-black text-white">₹{overview.current_price.toLocaleString('en-IN')}</span>
+            <span className="text-3xl font-black text-white">
+              {(overview as any).currency === 'USD' ? '$' : '₹'}{overview.current_price.toLocaleString('en-US')}
+            </span>
             <div className={`flex items-center text-sm font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
               {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
               {overview.change_amount > 0 ? `+${overview.change_amount}` : overview.change_amount} ({overview.change_percent}%)
@@ -75,7 +77,9 @@ export default function StockHeader({ overview }: StockHeaderProps) {
           <div className="text-xs text-gray-400 flex items-center lg:justify-end gap-4 mt-2 pt-2 border-t border-[#1E2638]">
             <div>
               <span className="text-gray-500">Market Cap:</span>{' '}
-              <span className="font-semibold text-white">₹{overview.market_cap_cr.toLocaleString('en-IN')} Cr</span>
+              <span className="font-semibold text-white">
+                {(overview as any).currency === 'USD' ? '$' : '₹'}{overview.market_cap_cr.toLocaleString('en-US')} {(overview as any).currency === 'USD' ? 'M' : 'Cr'}
+              </span>
             </div>
           </div>
         </div>
