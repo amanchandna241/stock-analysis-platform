@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Cpu, Server, Database, Cloud, Shield, Zap, RefreshCw, FileText } from 'lucide-react';
+import { Cpu, Server, Database, Cloud, Shield, Zap, RefreshCw, FileText, Sliders, Bell } from 'lucide-react';
 
 export default function ArchitecturePage() {
   const awsServices = [
@@ -9,8 +9,8 @@ export default function ArchitecturePage() {
     { name: "AWS S3", category: "Object Storage", desc: "Encrypted storage bucket for raw Annual Reports, PDF filings, transcripts, and vector chunks." },
     { name: "ECS / EKS", category: "Compute Container", desc: "Autoscaling container clusters running FastAPI microservices and Celery background workers." },
     { name: "ALB (Application Load Balancer)", category: "Traffic Distribution", desc: "Layer-7 load balancing with dynamic path routing (/api/v1/* -> FastAPI backend)." },
-    { name: "RDS PostgreSQL", category: "Relational DB", desc: "Multi-AZ PostgreSQL instance storing 10-year financial statements, master equities, and audit logs." },
-    { name: "ElastiCache Redis", category: "In-Memory Cache", desc: "Sub-millisecond latency cache for stock quotes, calculated DCF outputs, and session state." },
+    { name: "RDS PostgreSQL", category: "Relational DB", desc: "Multi-AZ PostgreSQL instance storing 10-year financial statements, master equities, watchlists, alerts, and audit logs." },
+    { name: "ElastiCache Redis", category: "In-Memory Cache", desc: "Sub-millisecond latency cache for stock quotes, calculated DCF outputs, watchlist state, and session tokens." },
     { name: "AWS SQS", category: "Queueing", desc: "Decoupled asynchronous queue for document chunk processing, RAG indexing, and news processing." },
     { name: "EventBridge", category: "Cron & Events", desc: "Scheduled event triggers for market close end-of-day data ingest and news feed updates." },
     { name: "Secrets Manager", category: "Security", desc: "Zero-exposure storage for LLM Provider API Keys (OpenAI, Anthropic, Gemini)." },
@@ -27,7 +27,7 @@ export default function ArchitecturePage() {
           <h1 className="text-2xl font-black text-white tracking-tight">AWS & Databricks Production Architecture Specification</h1>
         </div>
         <p className="text-xs text-gray-400 max-w-3xl leading-relaxed">
-          Production-grade enterprise cloud architecture blueprint designed for high availability, sub-second query latency, strict zero-hallucination AI guardrails, and Databricks historical analytics compatibility.
+          Production-grade enterprise cloud architecture blueprint designed for high availability, sub-second query latency, strict zero-hallucination AI guardrails, dynamic user preferences (watchlists & custom alerts), and Databricks historical analytics compatibility.
         </p>
       </div>
 
@@ -55,11 +55,11 @@ export default function ArchitecturePage() {
           <div className="pt-4 border-t border-[#1E2638] flex items-center justify-between gap-4 min-w-[700px]">
             <div className="bg-[#131822] border border-gray-700 p-3 rounded-lg text-center w-48">
               <span className="font-bold text-amber-400 block">ElastiCache Redis</span>
-              <span className="text-[10px] text-gray-400">Metric Cache</span>
+              <span className="text-[10px] text-gray-400">Watchlists & Quote Cache</span>
             </div>
             <div className="bg-[#131822] border border-gray-700 p-3 rounded-lg text-center w-48">
               <span className="font-bold text-blue-400 block">RDS PostgreSQL</span>
-              <span className="text-[10px] text-gray-400">10Y Statements DB</span>
+              <span className="text-[10px] text-gray-400">10Y Statements & Alerts DB</span>
             </div>
             <div className="bg-[#131822] border border-gray-700 p-3 rounded-lg text-center w-48">
               <span className="font-bold text-purple-400 block">LLM Abstraction</span>

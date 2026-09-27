@@ -35,7 +35,8 @@ This document provides the production cloud infrastructure blueprint for the **A
 +----------+       +-----------+        +------------+       +------------+       +------------+
 |  RDS     |       |ElastiCache|        |  AWS S3    |       |  AWS SQS   |       | Databricks |
 |PostgreSQL|       |   Redis   |        |(Doc Filings|       | (Async Task|       | Delta Lake |
-|(10Y Data)|       |  (Cache)  |        | & Vectors) |       |  Queue)    |       | (Analytics)|
+|(10Y Data |       |(Watchlists|        | & Vectors) |       |  Queue)    |       | (Analytics)|
+| & Preferences)   | & Quotes) |        |            |       |            |       |            |
 +----------+       +-----------+        +------------+       +------------+       +------------+
 ```
 
@@ -44,16 +45,17 @@ This document provides the production cloud infrastructure blueprint for the **A
 ## 2. Component Blueprint Specifications
 
 ### 2.1 AWS CloudFront & S3
-- **CloudFront**: Edge distribution with TLS 1.3 encryption, Geo-restriction capabilities, and automatic compression.
+- **CloudFront**: Edge distribution with TLS 1.3 encryption, Geo-restriction capabilities, automatic compression, and custom edge routing.
 - **S3 Bucket**: Versioned, encrypted at rest via AWS KMS (SSE-KMS), holding raw Annual Reports, PDF investor filings, and chunked text documents for RAG.
 
 ### 2.2 ECS Container Microservices (FastAPI)
 - **Task Definition**: 2 vCPU, 4GB RAM minimum per container task.
 - **Autoscaling Policy**: Scales dynamically from 2 to 10 instances based on CPU utilization (>70%) and ALB Request Count Per Target.
+- **Dynamic Services**: Handles live `yfinance` resolution, parallel peer matrix evaluations (up to 15 concurrent tickers), and dynamic watchlist/alert persistence.
 
 ### 2.3 RDS PostgreSQL & ElastiCache Redis
-- **RDS PostgreSQL**: Multi-AZ db.r6g.xlarge with automated daily snapshots, storing 10-year audited financial statements, master ticker metadata, and shareholding patterns.
-- **ElastiCache Redis**: Cluster mode enabled (cache.r6g.large), serving low-latency quote ticks, calculated DCF outputs, and user session tokens.
+- **RDS PostgreSQL**: Multi-AZ db.r6g.xlarge with automated daily snapshots, storing 10-year audited financial statements, master ticker metadata, shareholding patterns, and user preferences (watchlists & alerts).
+- **ElastiCache Redis**: Cluster mode enabled (cache.r6g.large), serving sub-millisecond quote ticks, calculated DCF outputs, dynamic watchlist state, and user session tokens.
 
 ### 2.4 Asynchronous Task Queue & Scheduling
 - **AWS SQS**: `equity-research-doc-indexing-queue.fifo` manages background document OCR, embedding generation, and news deduplication.
