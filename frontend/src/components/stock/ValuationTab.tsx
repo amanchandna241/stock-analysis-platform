@@ -226,11 +226,15 @@ export default function ValuationTab({ ticker, data }: ValuationProps) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-gradient-to-r from-purple-950/30 to-blue-950/30 rounded-xl border border-purple-800/40 mb-8">
           <div>
             <span className="text-xs text-gray-400">Implied Fair Share Value</span>
-            <div className="text-3xl font-black text-purple-300">₹{dcfResult.fair_value_per_share}</div>
+            <div className="text-3xl font-black text-purple-300">
+              {(data as any)?.currency === 'USD' ? '$' : '₹'}{dcfResult.fair_value_per_share}
+            </div>
           </div>
           <div>
             <span className="text-xs text-gray-400">Current Market Price</span>
-            <div className="text-2xl font-bold text-white">₹{dcfResult.current_price}</div>
+            <div className="text-2xl font-bold text-white">
+              {(data as any)?.currency === 'USD' ? '$' : '₹'}{dcfResult.current_price}
+            </div>
           </div>
           <div>
             <span className="text-xs text-gray-400">Margin of Safety</span>
@@ -240,13 +244,15 @@ export default function ValuationTab({ ticker, data }: ValuationProps) {
           </div>
           <div>
             <span className="text-xs text-gray-400">Implied Equity Value</span>
-            <div className="text-xl font-bold text-gray-200">₹{dcfResult.equity_value_cr.toLocaleString('en-IN')} Cr</div>
+            <div className="text-xl font-bold text-gray-200">
+              {(data as any)?.currency === 'USD' ? '$' : '₹'}{dcfResult.equity_value_cr.toLocaleString('en-US')} {(data as any)?.currency === 'USD' ? 'M' : 'Cr'}
+            </div>
           </div>
         </div>
 
         {/* 5x5 Sensitivity Matrix Table */}
         <div>
-          <h4 className="text-sm font-bold text-white mb-3">5x5 Valuation Sensitivity Table (Implied Price ₹ vs WACC & Terminal Growth)</h4>
+          <h4 className="text-sm font-bold text-white mb-3">5x5 Valuation Sensitivity Table (Implied Price {(data as any)?.currency === 'USD' ? '$' : '₹'} vs WACC & Terminal Growth)</h4>
           <div className="overflow-x-auto">
             <table className="w-full text-center text-xs border border-[#1E2638] rounded-xl overflow-hidden">
               <thead className="bg-[#0B0E14] text-gray-400">
@@ -273,7 +279,7 @@ export default function ValuationTab({ ticker, data }: ValuationProps) {
                             cell.implied_share_price > dcfResult.current_price ? 'text-green-400' : 'text-gray-300'
                           }`}
                         >
-                          ₹{cell.implied_share_price}
+                          {(data as any)?.currency === 'USD' ? '$' : '₹'}{cell.implied_share_price}
                         </td>
                       );
                     })}

@@ -239,7 +239,9 @@ export default function Navbar() {
                       </div>
 
                       <div className="text-right">
-                        <div className="font-black text-white text-base">₹{st.current_price}</div>
+                        <div className="font-black text-white text-base">
+                          {st.currency === 'USD' ? '$' : '₹'}{st.current_price}
+                        </div>
                         <div className="text-blue-400 text-xs font-bold flex items-center justify-end gap-1 group-hover:translate-x-1 transition-transform">
                           <span>Open Research Page</span>
                           <ArrowRight className="w-4 h-4" />

@@ -165,7 +165,7 @@ export default function DashboardPage() {
                   <div className="text-[11px] text-gray-400">{st.name}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-white">₹{st.price}</div>
+                  <div className="font-bold text-white">{st.currency === 'USD' ? '$' : '₹'}{st.price}</div>
                   <div className="text-green-400 font-bold">+{st.change_pct}%</div>
                 </div>
               </Link>
@@ -186,7 +186,7 @@ export default function DashboardPage() {
                   <div className="text-[11px] text-gray-400">{st.name}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-white">₹{st.price}</div>
+                  <div className="font-bold text-white">{st.currency === 'USD' ? '$' : '₹'}{st.price}</div>
                   <div className="text-red-400 font-bold">{st.change_pct}%</div>
                 </div>
               </Link>
@@ -207,7 +207,7 @@ export default function DashboardPage() {
                   <div className="text-[11px] text-gray-400">P/E: {st.pe_ratio}x</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-white">₹{st.price}</div>
+                  <div className="font-bold text-white">{st.currency === 'USD' ? '$' : '₹'}{st.price}</div>
                   <div className="text-amber-400 font-bold text-[10px] bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/40">52W High</div>
                 </div>
               </Link>
