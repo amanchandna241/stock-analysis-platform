@@ -1,25 +1,69 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, TrendingUp, ShieldAlert, FileText, Newspaper, LayoutDashboard, Cpu, Layers } from 'lucide-react';
+import { fetchApi } from '@/lib/api';
+import { Search, TrendingUp, Building2, LayoutDashboard, Layers, FileText, Cpu, ArrowRight } from 'lucide-react';
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const handleSearch = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (searchQuery.trim().length >= 1) {
+      setIsSearching(true);
+      const timer = setTimeout(() => {
+        fetchApi<any[]>(`/stocks/search?q=${encodeURIComponent(searchQuery.trim())}`)
+          .then((res) => {
+            setSearchResults(res || []);
+            setShowDropdown(true);
+            setIsSearching(false);
+          })
+          .catch(() => {
+            setIsSearching(false);
+          });
+      }, 200);
+      return () => clearTimeout(timer);
+    } else {
+      setSearchResults([]);
+      setShowDropdown(false);
+    }
+  }, [searchQuery]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      setShowDropdown(false);
       router.push(`/stock/${searchQuery.trim().toUpperCase()}`);
     }
+  };
+
+  const handleSelectStock = (ticker: string) => {
+    setShowDropdown(false);
+    setSearchQuery('');
+    router.push(`/stock/${ticker}`);
   };
 
   const quickStocks = ['RELIANCE', 'TCS', 'INFY', 'HDFCBANK', 'ICICIBANK', 'BHARTIARTL'];
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0B0E14]/90 backdrop-blur-md border-b border-[#1E2638]">
+    <header className="sticky top-0 z-50 bg-[#0B0E14]/95 backdrop-blur-md border-b border-[#1E2638]">
       {/* Top Ticker Marquee */}
       <div className="bg-[#131822] border-b border-[#1E2638] px-4 py-1.5 text-xs flex items-center justify-between text-gray-400">
         <div className="flex items-center space-x-6 overflow-x-auto whitespace-nowrap">
@@ -57,19 +101,70 @@ export default function Navbar() {
           <span>Antigravity<span className="text-blue-500 font-normal">Equity</span></span>
         </Link>
 
-        {/* Search Bar */}
-        <form onSubmit={handleSearch} className="relative flex-1 max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        {/* Search Bar Container */}
+        <div className="relative flex-1 max-w-md" ref={dropdownRef}>
+          <form onSubmit={handleSearchSubmit} className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search ticker or company (e.g. RELIANCE, TCS, INFY)..."
+              placeholder="Search ticker or company (e.g. RELIANCE, TCS, SBIN)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#131822] text-sm text-white placeholder-gray-500 pl-10 pr-4 py-2 rounded-xl border border-[#1E2638] focus:outline-none focus:border-blue-500 transition-colors"
+              onFocus={() => searchQuery.trim() && setShowDropdown(true)}
+              style={{ color: '#FFFFFF', backgroundColor: '#131822' }}
+              className="w-full text-white placeholder-gray-400 font-medium text-sm pl-10 pr-4 py-2.5 rounded-xl border border-[#1E2638] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-inner"
             />
-          </div>
-        </form>
+          </form>
+
+          {/* Autocomplete Dropdown */}
+          {showDropdown && (
+            <div className="absolute left-0 right-0 top-full mt-2 bg-[#131822] border border-[#1E2638] rounded-2xl shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto">
+              <div className="p-2 border-b border-[#1E2638] text-[11px] text-gray-400 flex items-center justify-between px-3">
+                <span>Matching Equities ({searchResults.length})</span>
+                {isSearching && <span className="text-blue-400 font-medium animate-pulse">Searching...</span>}
+              </div>
+
+              {searchResults.length > 0 ? (
+                <div className="divide-y divide-[#1E2638]">
+                  {searchResults.map((st) => (
+                    <button
+                      key={st.ticker}
+                      onClick={() => handleSelectStock(st.ticker)}
+                      className="w-full text-left p-3 hover:bg-[#1E2638]/70 flex items-center justify-between transition-colors text-xs group"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-blue-950/60 border border-blue-800/40 flex items-center justify-center font-black text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                          {st.ticker.slice(0, 2)}
+                        </div>
+                        <div>
+                          <div className="font-bold text-white group-hover:text-blue-400 flex items-center gap-1.5">
+                            <span>{st.ticker}</span>
+                            <span className="text-[10px] bg-[#1E2638] text-gray-300 px-1.5 py-0.2 rounded font-mono">
+                              {st.bse_code || 'NSE'}
+                            </span>
+                          </div>
+                          <div className="text-gray-400 text-[11px] truncate max-w-[200px]">{st.name}</div>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <div className="font-bold text-white">₹{st.current_price}</div>
+                        <div className="text-blue-400 text-[11px] flex items-center justify-end gap-0.5 group-hover:translate-x-0.5 transition-transform">
+                          <span>Research</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 text-center text-xs text-gray-400">
+                  No direct matches found. Press <kbd className="bg-[#1E2638] px-1.5 py-0.5 rounded text-gray-200">Enter</kbd> to research ticker <strong className="text-white">"{searchQuery.toUpperCase()}"</strong>.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Quick Tickers */}
         <div className="hidden lg:flex items-center gap-1 text-xs text-gray-400">
