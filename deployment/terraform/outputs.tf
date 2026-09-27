@@ -8,6 +8,16 @@ output "cloudfront_domain_name" {
   value       = aws_cloudfront_distribution.cdn.domain_name
 }
 
+output "ecr_backend_repository_url" {
+  description = "ECR Repository URL for Backend Docker Image"
+  value       = aws_ecr_repository.backend.repository_url
+}
+
+output "ecr_frontend_repository_url" {
+  description = "ECR Repository URL for Frontend Docker Image"
+  value       = aws_ecr_repository.frontend.repository_url
+}
+
 output "rds_postgres_endpoint" {
   description = "RDS PostgreSQL Database Connection Endpoint"
   value       = aws_db_instance.postgres.endpoint

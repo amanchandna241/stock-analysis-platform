@@ -1,3 +1,24 @@
+# ECR Repositories for Docker Containers
+resource "aws_ecr_repository" "backend" {
+  name                 = "${var.app_name}-backend"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "frontend" {
+  name                 = "${var.app_name}-frontend"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
 # Application Load Balancer (ALB)
 resource "aws_lb" "alb" {
   name               = "${var.app_name}-alb"
@@ -73,7 +94,7 @@ resource "aws_ecs_task_definition" "backend" {
 
   container_definitions = jsonencode([{
     name      = "fastapi-backend"
-    image     = "public.ecr.aws/docker/library/python:3.10-slim"
+    image     = "${aws_ecr_repository.backend.repository_url}:latest"
     essential = true
 
     portMappings = [{
@@ -82,9 +103,11 @@ resource "aws_ecs_task_definition" "backend" {
     }]
 
     environment = [
+      { name = "PYTHONUNBUFFERED", value = "1" },
       { name = "DATABASE_URL", value = "postgresql://dbadmin:${var.db_password}@${aws_db_instance.postgres.endpoint}/equity_research" },
       { name = "REDIS_URL", value = "redis://${aws_elasticache_cluster.redis.cache_nodes[0].address}:6379/0" },
-      { name = "DEFAULT_LLM_PROVIDER", value = "auto" }
+      { name = "DEFAULT_LLM_PROVIDER", value = "auto" },
+      { name = "ENABLE_LIVE_MARKET_FEED", value = "true" }
     ]
 
     logConfiguration = {
