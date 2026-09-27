@@ -34,6 +34,7 @@ def get_stock_overview(ticker: str):
         dividend_yield=data['dividend_yield'],
         high_52w=data['high_52w'],
         low_52w=data['low_52w'],
+        currency=data.get('currency', 'INR'),
         last_updated=data['last_updated'],
         business_summary=data['business_summary'],
         key_products=data['key_products']

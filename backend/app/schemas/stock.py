@@ -189,6 +189,7 @@ class PeerComparisonRow(BaseModel):
     ev_ebitda: float
     fcf_yield: float
     dividend_yield: float
+    currency: str = "INR"
 
 class PeerComparisonResponse(BaseModel):
     target_ticker: str
@@ -344,6 +345,7 @@ class WatchlistItem(BaseModel):
     change_pct: float
     pe_ratio: float
     market_cap_cr: float
+    currency: str = "INR"
 
 class DashboardResponse(BaseModel):
     indices: List[MarketIndex]

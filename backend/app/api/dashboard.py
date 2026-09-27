@@ -46,7 +46,8 @@ def get_dashboard(
                 price=st_data['current_price'],
                 change_pct=st_data['change_percent'],
                 pe_ratio=st_data['pe_ratio'],
-                market_cap_cr=st_data['market_cap_cr']
+                market_cap_cr=st_data['market_cap_cr'],
+                currency=st_data.get('currency', 'INR')
             ))
 
     # Dynamically derive Gainers, Losers, 52W Highs/Lows from active universe
@@ -58,21 +59,24 @@ def get_dashboard(
     gainers = [
         WatchlistItem(
             ticker=s['ticker'], name=s['name'], price=s['current_price'],
-            change_pct=s['change_percent'], pe_ratio=s['pe_ratio'], market_cap_cr=s['market_cap_cr']
+            change_pct=s['change_percent'], pe_ratio=s['pe_ratio'], market_cap_cr=s['market_cap_cr'],
+            currency=s.get('currency', 'INR')
         ) for s in sorted_by_change if s['change_percent'] > 0
     ][:3]
 
     losers = [
         WatchlistItem(
             ticker=s['ticker'], name=s['name'], price=s['current_price'],
-            change_pct=s['change_percent'], pe_ratio=s['pe_ratio'], market_cap_cr=s['market_cap_cr']
+            change_pct=s['change_percent'], pe_ratio=s['pe_ratio'], market_cap_cr=s['market_cap_cr'],
+            currency=s.get('currency', 'INR')
         ) for s in reversed(sorted_by_change) if s['change_percent'] < 0
     ][:3]
 
     high_52w = [
         WatchlistItem(
             ticker=s['ticker'], name=s['name'], price=s['current_price'],
-            change_pct=s['change_percent'], pe_ratio=s['pe_ratio'], market_cap_cr=s['market_cap_cr']
+            change_pct=s['change_percent'], pe_ratio=s['pe_ratio'], market_cap_cr=s['market_cap_cr'],
+            currency=s.get('currency', 'INR')
         ) for s in valid_stocks if s['current_price'] >= s['high_52w'] * 0.95
     ]
 

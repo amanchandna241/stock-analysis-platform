@@ -67,7 +67,8 @@ def get_peer_comparison(ticker: str, custom_peers: Optional[str] = Query(None)):
             pe_ratio=st_data['pe_ratio'],
             ev_ebitda=st_data['ev_ebitda'],
             fcf_yield=fcf_yield,
-            dividend_yield=st_data['dividend_yield']
+            dividend_yield=st_data['dividend_yield'],
+            currency=st_data.get('currency', 'INR')
         ))
 
     return PeerComparisonResponse(target_ticker=ticker.upper(), peers=rows)
