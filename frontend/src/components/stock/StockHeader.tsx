@@ -7,6 +7,7 @@ interface StockHeaderProps {
   overview: {
     ticker: string;
     bse_code?: string;
+    exchange?: string;
     name: string;
     sector: string;
     industry: string;
@@ -30,11 +31,9 @@ export default function StockHeader({ overview }: StockHeaderProps) {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <span className="text-2xl font-black text-white tracking-tight">{overview.ticker}</span>
-            {overview.bse_code && (
-              <span className="text-xs bg-[#1E2638] text-gray-300 px-2 py-0.5 rounded font-mono">
-                BSE: {overview.bse_code}
-              </span>
-            )}
+            <span className="text-xs bg-[#1E2638] text-gray-300 px-2 py-0.5 rounded font-mono">
+              {overview.bse_code ? `BSE: ${overview.bse_code}` : `${overview.exchange || 'NYSE'}: ${overview.ticker}`}
+            </span>
             <span className="text-xs bg-blue-950/60 text-blue-400 border border-blue-800/50 px-2.5 py-0.5 rounded-full font-medium flex items-center gap-1">
               <Building2 className="w-3 h-3" /> {overview.sector}
             </span>

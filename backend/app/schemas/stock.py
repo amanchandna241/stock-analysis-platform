@@ -4,6 +4,7 @@ from typing import List, Dict, Optional, Any
 class StockOverview(BaseModel):
     ticker: str
     bse_code: Optional[str] = None
+    exchange: Optional[str] = "NSE"
     name: str
     sector: str
     industry: str

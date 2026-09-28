@@ -21,6 +21,7 @@ def get_stock_overview(ticker: str):
     return StockOverview(
         ticker=data['ticker'],
         bse_code=data.get('bse_code'),
+        exchange=data.get('exchange', 'NSE'),
         name=data['name'],
         sector=data['sector'],
         industry=data['industry'],

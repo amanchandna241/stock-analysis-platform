@@ -234,7 +234,7 @@ export default function Navbar() {
                           <div className="font-black text-white text-lg group-hover:text-blue-400 flex items-center gap-2">
                             <span>{st.ticker}</span>
                             <span className="text-xs bg-[#0F172A] text-gray-300 px-2.5 py-0.5 rounded-md font-mono border border-gray-700">
-                              {st.bse_code || 'NSE'}
+                              {st.currency === 'USD' ? (st.exchange || 'NYSE') : (st.bse_code ? `BSE: ${st.bse_code}` : 'NSE')}
                             </span>
                           </div>
                           <div className="text-gray-300 text-xs font-semibold">{st.name}</div>

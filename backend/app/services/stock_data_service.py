@@ -263,7 +263,7 @@ class StockDataService:
         # Determine candidate symbols to query
         if "." in ticker_clean:
             symbols_to_try = [ticker_clean]
-        elif ticker_clean in ["TSLA", "AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "NFLX", "AMD", "INTC", "SPY", "QQQ"]:
+        elif ticker_clean in ["GS", "JPM", "BAC", "C", "MS", "WFC", "TSLA", "AAPL", "MSFT", "NVDA", "GOOGL", "GOOG", "AMZN", "META", "NFLX", "AMD", "INTC", "SPY", "QQQ", "DIS", "V", "MA", "BA", "IBM", "ORCL", "CRM", "UBER"]:
             symbols_to_try = [ticker_clean]
         else:
             symbols_to_try = [f"{ticker_clean}.NS", f"{ticker_clean}.BO", ticker_clean]
@@ -313,6 +313,27 @@ class StockDataService:
                 industry = info.get('industry') or "Global Equities"
                 currency = info.get('currency', currency)
 
+                # Determine exchange name (NYSE, NASDAQ, NSE, BSE)
+                raw_ex = info.get('fullExchangeName') or info.get('exchange') or ('NSE' if currency == 'INR' else 'NYSE')
+                if raw_ex in ['NYQ', 'NYSE', 'New York Stock Exchange']:
+                    exchange = 'NYSE'
+                elif raw_ex in ['NMS', 'NGS', 'NASDAQ', 'NasdaqGS']:
+                    exchange = 'NASDAQ'
+                elif '.NS' in symbol:
+                    exchange = 'NSE'
+                elif '.BO' in symbol or symbol.isdigit():
+                    exchange = 'BSE'
+                else:
+                    exchange = raw_ex
+
+                # Set bse_code ONLY if it is an Indian BSE security (numeric code or BO symbol)
+                if currency == 'USD':
+                    bse_code = None
+                elif symbol.isdigit():
+                    bse_code = symbol
+                else:
+                    bse_code = merged.get('bse_code')
+
                 chg_amt = round(curr_price - prev_close, 2)
                 chg_pct = round((chg_amt / max(0.01, prev_close)) * 100.0, 2)
                 
@@ -328,7 +349,8 @@ class StockDataService:
                 merged = dict(base_seed)
                 merged.update({
                     "ticker": ticker_clean,
-                    "bse_code": symbol,
+                    "bse_code": bse_code,
+                    "exchange": exchange,
                     "name": name,
                     "sector": sector,
                     "industry": industry,
