@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { fetchApi } from '@/lib/api';
-import { Search, TrendingUp, X, LayoutDashboard, Layers, FileText, Cpu, ArrowRight, Sparkles } from 'lucide-react';
+import { Search, TrendingUp, X, LayoutDashboard, Layers, FileText, Cpu, ArrowRight, Sparkles, GitCompareArrows } from 'lucide-react';
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -152,8 +152,12 @@ export default function Navbar() {
               <span className="hidden sm:inline">Mutual Funds</span>
             </Link>
             <Link href="/compare" className="px-3 py-2 rounded-xl text-sm font-semibold text-gray-300 hover:text-white hover:bg-[#131822] flex items-center gap-1.5 transition-colors">
-              <Layers className="w-4 h-4 text-emerald-400" />
-              <span className="hidden sm:inline">Peers</span>
+              <GitCompareArrows className="w-4 h-4 text-purple-400" />
+              <span className="hidden sm:inline">Compare</span>
+            </Link>
+            <Link href="/recommend" className="px-3 py-2 rounded-xl text-sm font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 border border-emerald-800/50 flex items-center gap-1.5 transition-colors">
+              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <span className="hidden sm:inline">Screener</span>
             </Link>
             <Link href="/rag" className="px-3 py-2 rounded-xl text-sm font-semibold text-gray-300 hover:text-white hover:bg-[#131822] flex items-center gap-1.5 transition-colors">
               <FileText className="w-4 h-4 text-purple-400" />

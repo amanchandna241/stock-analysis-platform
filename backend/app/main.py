@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.api import (
     dashboard, stocks, financials, profitability_growth,
-    valuation, peers, technicals, governance, earnings, rag, news, thesis, mutual_funds
+    valuation, peers, technicals, governance, earnings, rag, news, thesis, mutual_funds,
+    recommendation, compare
 )
 
 app = FastAPI(
@@ -35,6 +36,8 @@ app.include_router(rag.router, prefix=settings.API_V1_STR)
 app.include_router(news.router, prefix=settings.API_V1_STR)
 app.include_router(thesis.router, prefix=settings.API_V1_STR)
 app.include_router(mutual_funds.router, prefix=settings.API_V1_STR)
+app.include_router(recommendation.router, prefix=settings.API_V1_STR)
+app.include_router(compare.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():
