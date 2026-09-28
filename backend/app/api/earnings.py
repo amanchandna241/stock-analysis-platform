@@ -87,5 +87,6 @@ def get_earnings_analysis(ticker: str):
     return EarningsResponse(
         ticker=data['ticker'],
         quarters=quarters_data,
-        ai_analysis=ai_summary
+        ai_analysis=ai_summary,
+        currency=data.get('currency', 'INR')
     )

@@ -98,11 +98,14 @@ def get_valuation_summary(ticker: str):
         params=dcf_params
     )
 
+    dcf_default.currency = data.get('currency', 'INR')
+
     return ValuationResponse(
         ticker=data['ticker'],
         relative_table=relative_table,
         historical=historical,
-        dcf_default=dcf_default
+        dcf_default=dcf_default,
+        currency=data.get('currency', 'INR')
     )
 
 @router.post("/{ticker}/dcf-calculator", response_model=DCFResult)
@@ -119,10 +122,12 @@ def calculate_custom_dcf(ticker: str, params: DCFInput = Body(...)):
     net_debt = data['debt'][-1] - data['cash'][-1]
     shares = data['market_cap_cr'] / data['current_price']
 
-    return ValuationEngine.run_dcf_model(
+    res = ValuationEngine.run_dcf_model(
         current_revenue=curr_rev,
         net_debt=net_debt,
         shares_outstanding=shares,
         current_price=data['current_price'],
         params=params
     )
+    res.currency = data.get('currency', 'INR')
+    return res

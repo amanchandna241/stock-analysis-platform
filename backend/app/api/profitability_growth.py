@@ -59,7 +59,8 @@ def get_profitability_analysis(ticker: str):
         metrics=metrics,
         trends_5y=trends_5y,
         trends_10y=trends_10y,
-        explanations=explanations
+        explanations=explanations,
+        currency=data.get('currency', 'INR')
     )
 
 @router.get("/{ticker}/growth", response_model=GrowthResponse)
@@ -105,4 +106,4 @@ def get_growth_analysis(ticker: str):
             "fcf": fcf[i]
         })
 
-    return GrowthResponse(ticker=data['ticker'], table=table, cagr_chart_data=chart_data)
+    return GrowthResponse(ticker=data['ticker'], table=table, cagr_chart_data=chart_data, currency=data.get('currency', 'INR'))

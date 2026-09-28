@@ -67,7 +67,8 @@ def get_income_statement(ticker: str):
         revenue_chart=rev_chart,
         ebitda_chart=ebitda_chart,
         pat_chart=pat_chart,
-        margin_trend=margin_chart
+        margin_trend=margin_chart,
+        currency=data.get('currency', 'INR')
     )
 
 @router.get("/{ticker}/balance-sheet", response_model=BalanceSheetResponse)
@@ -121,7 +122,7 @@ def get_balance_sheet(ticker: str):
             asset_turnover=asset_turnover
         ))
 
-    return BalanceSheetResponse(ticker=data['ticker'], years=years, rows=rows)
+    return BalanceSheetResponse(ticker=data['ticker'], years=years, rows=rows, currency=data.get('currency', 'INR'))
 
 @router.get("/{ticker}/cash-flow", response_model=CashFlowResponse)
 def get_cash_flow(ticker: str):
@@ -168,11 +169,12 @@ def get_cash_flow(ticker: str):
             "working_capital": wc
         })
 
-    warnings = FinancialEngine.detect_cash_flow_warnings(raw_dicts)
+    warnings = FinancialEngine.detect_cash_flow_warnings(raw_dicts, currency=data.get('currency', 'INR'))
 
     return CashFlowResponse(
         ticker=data['ticker'],
         years=years,
         rows=rows,
-        warnings=warnings
+        warnings=warnings,
+        currency=data.get('currency', 'INR')
     )

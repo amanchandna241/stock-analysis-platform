@@ -10,7 +10,7 @@ class FinancialEngine:
         return round((pow(end_val / start_val, 1.0 / years) - 1.0) * 100.0, 2)
 
     @staticmethod
-    def detect_cash_flow_warnings(rows: List[Dict[str, Any]]) -> List[CashFlowWarning]:
+    def detect_cash_flow_warnings(rows: List[Dict[str, Any]], currency: str = "INR") -> List[CashFlowWarning]:
         """
         Scans financial rows for Cash Flow red flags:
         1. PAT rising but FCF falling
@@ -20,6 +20,9 @@ class FinancialEngine:
         warnings = []
         if len(rows) < 3:
             return warnings
+
+        unit = "M" if currency == "USD" else "Cr"
+        symbol = "$" if currency == "USD" else "₹"
 
         # Sort chronologically (assuming years like FY21, FY22, ...)
         sorted_rows = sorted(rows, key=lambda x: x.get('year', ''))
@@ -34,7 +37,7 @@ class FinancialEngine:
                 year=last_3[-1].get('year', 'Recent'),
                 warning_type="Divergence: PAT Rising vs FCF Falling",
                 severity="HIGH",
-                description=f"Net Profit (PAT) increased from {pat_trend[0]} Cr to {pat_trend[-1]} Cr, but Free Cash Flow dropped from {fcf_trend[0]} Cr to {fcf_trend[-1]} Cr. Indicates potential earnings quality or capital intensity risks."
+                description=f"Net Profit (PAT) increased from {symbol}{pat_trend[0]} {unit} to {symbol}{pat_trend[-1]} {unit}, but Free Cash Flow dropped from {symbol}{fcf_trend[0]} {unit} to {symbol}{fcf_trend[-1]} {unit}. Indicates potential earnings quality or capital intensity risks."
             ))
 
         # Flag 2: CFO consistently below PAT (CFO / PAT < 0.8)
@@ -63,7 +66,7 @@ class FinancialEngine:
                 year=last_3[-1].get('year', ''),
                 warning_type="Working Capital Expansion",
                 severity="MEDIUM",
-                description=f"Working capital expanded rapidly from {wc_trend[0]} Cr to {wc_trend[-1]} Cr over 3 years, consuming cash flow."
+                description=f"Working capital expanded rapidly from {symbol}{wc_trend[0]} {unit} to {symbol}{wc_trend[-1]} {unit} over 3 years, consuming cash flow."
             ))
 
         return warnings

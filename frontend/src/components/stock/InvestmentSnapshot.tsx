@@ -19,11 +19,16 @@ interface SnapshotProps {
     ev_ebitda: number;
     dividend_yield: number;
     formulas: Record<string, string>;
+    currency?: string;
   };
 }
 
 export default function InvestmentSnapshot({ snapshot }: SnapshotProps) {
   const [activeFormula, setActiveFormula] = useState<string | null>(null);
+  const isUSD = snapshot.currency === 'USD';
+  const symbol = isUSD ? '$' : '₹';
+  const locale = isUSD ? 'en-US' : 'en-IN';
+  const fcfLabel = isUSD ? 'Free Cash Flow ($M)' : 'Free Cash Flow (Cr)';
 
   const metricsList = [
     { label: '3Y Rev CAGR', value: `${snapshot.revenue_growth_3y}%`, category: 'Growth', highlight: snapshot.revenue_growth_3y > 10, formulaKey: 'Revenue Growth (3Y)' },
@@ -33,7 +38,7 @@ export default function InvestmentSnapshot({ snapshot }: SnapshotProps) {
     { label: 'Return on Equity (ROE)', value: `${snapshot.roe}%`, category: 'Efficiency', highlight: snapshot.roe > 15, formulaKey: 'ROE' },
     { label: 'ROCE', value: `${snapshot.roce}%`, category: 'Efficiency', highlight: snapshot.roce > 18, formulaKey: 'ROCE' },
     { label: 'Debt to Equity', value: snapshot.debt_equity, category: 'Solvency', highlight: snapshot.debt_equity < 0.5, formulaKey: 'Debt/Equity' },
-    { label: 'Free Cash Flow (Cr)', value: `₹${snapshot.free_cash_flow_cr.toLocaleString('en-IN')}`, category: 'Cash Flow', highlight: snapshot.free_cash_flow_cr > 0, formulaKey: 'Free Cash Flow' },
+    { label: fcfLabel, value: `${symbol}${snapshot.free_cash_flow_cr.toLocaleString(locale)}`, category: 'Cash Flow', highlight: snapshot.free_cash_flow_cr > 0, formulaKey: 'Free Cash Flow' },
     { label: 'Operating Margin', value: `${snapshot.operating_margin}%`, category: 'Profitability', highlight: snapshot.operating_margin > 15 },
     { label: 'P/E Ratio', value: `${snapshot.pe_ratio}x`, category: 'Valuation', highlight: snapshot.pe_ratio < 30 },
     { label: 'P/B Ratio', value: `${snapshot.pb_ratio}x`, category: 'Valuation', highlight: true },

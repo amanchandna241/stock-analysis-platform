@@ -323,7 +323,7 @@ class StockDataService:
                     mcap_cr = round(market_cap / 10_000_000.0, 2) if market_cap else 5000.0 # ₹ Crores
 
                 # Check if we have a seed for financial statements template
-                base_seed = cls.STOCKS_DB.get(ticker_clean) or cls._build_dynamic_financials_template(ticker_clean, curr_price, mcap_cr, sector, industry)
+                base_seed = cls.STOCKS_DB.get(ticker_clean) or cls._build_dynamic_financials_template(ticker_clean, curr_price, mcap_cr, sector, industry, currency=currency)
 
                 merged = dict(base_seed)
                 merged.update({
@@ -385,7 +385,7 @@ class StockDataService:
         return results
 
     @classmethod
-    def _build_dynamic_financials_template(cls, ticker: str, price: float, mcap: float, sector: str, industry: str) -> Dict[str, Any]:
+    def _build_dynamic_financials_template(cls, ticker: str, price: float, mcap: float, sector: str, industry: str, currency: str = "INR") -> Dict[str, Any]:
         """Builds calibrated financial statement projections derived from real live price and market cap."""
         scale = max(1.0, mcap / 10000.0)
         years = ["FY16", "FY17", "FY18", "FY19", "FY20", "FY21", "FY22", "FY23", "FY24", "FY25"]
@@ -411,7 +411,7 @@ class StockDataService:
             "current_price": price,
             "change_amount": 0.0,
             "change_percent": 0.0,
-            "currency": "USD" if price < 500 and mcap > 100000 else "INR",
+            "currency": currency,
             "market_cap_cr": mcap,
             "pe_ratio": 24.5,
             "pb_ratio": 4.2,

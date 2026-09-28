@@ -70,5 +70,6 @@ def get_technical_analysis(ticker: str, timeframe: str = Query("1Y")):
         indicators=indicators,
         patterns=patterns,
         chart_data=chart_points,
-        metrics=metrics
+        metrics=metrics,
+        currency=data.get('currency', 'INR')
     )

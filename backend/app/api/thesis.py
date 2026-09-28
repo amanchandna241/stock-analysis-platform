@@ -46,5 +46,6 @@ def get_investment_thesis(ticker: str):
         financials_summary=financials_summary,
         quarterly_summary={},
         valuation_summary=valuation_summary,
-        technical_summary={}
+        technical_summary={},
+        currency=data.get('currency', 'INR')
     )

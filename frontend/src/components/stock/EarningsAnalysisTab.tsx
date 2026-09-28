@@ -27,17 +27,22 @@ interface EarningsProps {
       things_to_monitor: string[];
       citations: string[];
     };
+    currency?: string;
   };
 }
 
 export default function EarningsAnalysisTab({ data }: EarningsProps) {
   const ai = data.ai_analysis;
+  const isUSD = data.currency === 'USD';
+  const symbol = isUSD ? '$' : '₹';
+  const locale = isUSD ? 'en-US' : 'en-IN';
+  const unitLabel = isUSD ? '$ Millions' : '₹ Crores';
 
   return (
     <div className="space-y-8">
       {/* Quarterly Performance Table */}
       <div className="bg-[#131822] border border-[#1E2638] rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-white mb-4">Quarterly Financial Results (₹ Crores)</h3>
+        <h3 className="text-lg font-bold text-white mb-4">Quarterly Financial Results ({unitLabel})</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
@@ -52,7 +57,7 @@ export default function EarningsAnalysisTab({ data }: EarningsProps) {
               <tr className="hover:bg-[#1E2638]/40 font-bold text-white">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">Revenue</td>
                 {data.quarters.map((q, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">₹{q.revenue.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">{symbol}{q.revenue.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40">
@@ -72,7 +77,7 @@ export default function EarningsAnalysisTab({ data }: EarningsProps) {
               <tr className="hover:bg-[#1E2638]/40">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">EBITDA</td>
                 {data.quarters.map((q, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">₹{q.ebitda.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">{symbol}{q.ebitda.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40 italic">
@@ -84,7 +89,7 @@ export default function EarningsAnalysisTab({ data }: EarningsProps) {
               <tr className="hover:bg-[#1E2638]/40 font-bold text-blue-400">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">Net Profit (PAT)</td>
                 {data.quarters.map((q, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">₹{q.pat.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">{symbol}{q.pat.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40">

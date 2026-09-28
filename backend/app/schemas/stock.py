@@ -37,6 +37,7 @@ class SnapshotMetrics(BaseModel):
     ev_ebitda: float
     dividend_yield: float
     formulas: Dict[str, str]
+    currency: str = "INR"
 
 class AnnualFinancialRow(BaseModel):
     year: str # e.g. FY16, FY17 ... FY25
@@ -59,6 +60,7 @@ class IncomeStatementResponse(BaseModel):
     ebitda_chart: List[Dict[str, Any]]
     pat_chart: List[Dict[str, Any]]
     margin_trend: List[Dict[str, Any]]
+    currency: str = "INR"
 
 class BalanceSheetRow(BaseModel):
     year: str
@@ -80,6 +82,7 @@ class BalanceSheetResponse(BaseModel):
     ticker: str
     years: List[str]
     rows: List[BalanceSheetRow]
+    currency: str = "INR"
 
 class CashFlowRow(BaseModel):
     year: str
@@ -104,6 +107,7 @@ class CashFlowResponse(BaseModel):
     rows: List[CashFlowRow]
     formula: str = "FCF = Operating Cash Flow (CFO) - Capital Expenditure (Capex)"
     warnings: List[CashFlowWarning]
+    currency: str = "INR"
 
 class ProfitabilityTrend(BaseModel):
     ticker: str
@@ -111,6 +115,7 @@ class ProfitabilityTrend(BaseModel):
     trends_5y: Dict[str, float]
     trends_10y: Dict[str, float]
     explanations: List[str]
+    currency: str = "INR"
 
 class GrowthCAGRRow(BaseModel):
     metric: str
@@ -122,6 +127,7 @@ class GrowthResponse(BaseModel):
     ticker: str
     table: List[GrowthCAGRRow]
     cagr_chart_data: List[Dict[str, Any]]
+    currency: str = "INR"
 
 class RelativeValuationRow(BaseModel):
     metric: str
@@ -168,12 +174,14 @@ class DCFResult(BaseModel):
     sensitivity_table: List[List[DCFSensitivityCell]]
     sensitivity_waccs: List[float]
     sensitivity_growths: List[float]
+    currency: str = "INR"
 
 class ValuationResponse(BaseModel):
     ticker: str
     relative_table: List[RelativeValuationRow]
     historical: HistoricalValuationData
     dcf_default: DCFResult
+    currency: str = "INR"
 
 class PeerComparisonRow(BaseModel):
     ticker: str
@@ -237,6 +245,7 @@ class TechnicalResponse(BaseModel):
     patterns: List[TechnicalPattern]
     chart_data: List[PriceChartPoint]
     metrics: Dict[str, float] # absolute_return_1y, relative_return_vs_nifty_1y, annualized_volatility, max_drawdown_1y, sharpe_ratio
+    currency: str = "INR"
 
 class ShareholdingTrend(BaseModel):
     quarter: str
@@ -291,6 +300,7 @@ class EarningsResponse(BaseModel):
     ticker: str
     quarters: List[QuarterlyResultRow]
     ai_analysis: QuarterlyAIAnalysis
+    currency: str = "INR"
 
 class DocumentSource(BaseModel):
     doc_id: str
@@ -331,6 +341,7 @@ class AIThesisResponse(BaseModel):
     bear_case: List[str]
     invalidation_factors: List[str]
     answers_to_14_questions: Dict[str, str]
+    currency: str = "INR"
 
 class MarketIndex(BaseModel):
     name: str

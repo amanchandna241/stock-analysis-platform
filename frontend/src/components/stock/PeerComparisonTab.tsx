@@ -136,7 +136,7 @@ export default function PeerComparisonTab({ targetTicker, peers: initialPeers }:
             <tr className="border-b border-[#1E2638] text-gray-400">
               <th className="py-3 px-4 font-semibold text-gray-300 sticky left-0 bg-[#131822]">Company / Ticker</th>
               <th className="py-3 px-3 font-semibold text-right cursor-pointer hover:text-white" onClick={() => handleSort('market_cap_cr')}>
-                M.Cap (Cr) <ArrowUpDown className="w-3 h-3 inline ml-0.5" />
+                Market Cap <ArrowUpDown className="w-3 h-3 inline ml-0.5" />
               </th>
               <th className="py-3 px-3 font-semibold text-right cursor-pointer hover:text-white" onClick={() => handleSort('revenue_growth_3y')}>
                 3Y Rev % <ArrowUpDown className="w-3 h-3 inline ml-0.5" />

@@ -95,5 +95,6 @@ def get_investment_snapshot(ticker: str):
         pb_ratio=data['pb_ratio'],
         ev_ebitda=data['ev_ebitda'],
         dividend_yield=data['dividend_yield'],
-        formulas=formulas
+        formulas=formulas,
+        currency=data.get('currency', 'INR')
     )

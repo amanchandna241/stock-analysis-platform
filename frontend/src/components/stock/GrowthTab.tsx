@@ -13,10 +13,14 @@ interface GrowthTabProps {
       cagr_10y: number;
     }>;
     cagr_chart_data: any[];
+    currency?: string;
   };
 }
 
 export default function GrowthTab({ data }: GrowthTabProps) {
+  const isUSD = data.currency === 'USD';
+  const unitLabel = isUSD ? '$ Millions' : '₹ Cr';
+
   return (
     <div className="space-y-6">
       {/* CAGR Table */}
@@ -54,7 +58,7 @@ export default function GrowthTab({ data }: GrowthTabProps) {
 
       {/* Growth Chart */}
       <div className="bg-[#131822] border border-[#1E2638] rounded-2xl p-6">
-        <h4 className="text-sm font-bold text-white mb-4">Multi-Year Fundamental Scale Comparison (₹ Cr)</h4>
+        <h4 className="text-sm font-bold text-white mb-4">Multi-Year Fundamental Scale Comparison ({unitLabel})</h4>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.cagr_chart_data}>

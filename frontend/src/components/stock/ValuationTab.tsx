@@ -25,6 +25,7 @@ interface ValuationProps {
       historical_chart: any[];
     };
     dcf_default: any;
+    currency?: string;
   };
 }
 

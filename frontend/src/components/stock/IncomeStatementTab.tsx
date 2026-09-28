@@ -12,15 +12,21 @@ interface IncomeTabProps {
     ebitda_chart: any[];
     pat_chart: any[];
     margin_trend: any[];
+    currency?: string;
   };
 }
 
 export default function IncomeStatementTab({ data }: IncomeTabProps) {
+  const isUSD = data.currency === 'USD';
+  const symbol = isUSD ? '$' : '₹';
+  const locale = isUSD ? 'en-US' : 'en-IN';
+  const unitLabel = isUSD ? '$ Millions' : '₹ Crores';
+
   return (
     <div className="space-y-8">
       {/* 10-Year Income Statement Table */}
       <div className="bg-[#131822] border border-[#1E2638] rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-white mb-4">10-Year Income Statement (₹ Crores)</h3>
+        <h3 className="text-lg font-bold text-white mb-4">10-Year Income Statement ({unitLabel})</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
@@ -35,37 +41,37 @@ export default function IncomeStatementTab({ data }: IncomeTabProps) {
               <tr className="hover:bg-[#1E2638]/40 font-bold text-white">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">Sales / Revenue</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">₹{r.revenue.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">{symbol}{r.revenue.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">EBITDA</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">₹{r.ebitda.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">{symbol}{r.ebitda.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">EBIT</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">₹{r.ebit.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">{symbol}{r.ebit.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">Profit Before Tax (PBT)</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">₹{r.pbt.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">{symbol}{r.pbt.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40 font-bold text-blue-400">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">Net Profit (PAT)</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">₹{r.pat.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">{symbol}{r.pat.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40">
-                <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">EPS (₹)</td>
+                <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">EPS ({symbol})</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">₹{r.eps}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">{symbol}{r.eps}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40 text-gray-400 italic">
@@ -97,8 +103,8 @@ export default function IncomeStatementTab({ data }: IncomeTabProps) {
                 <YAxis stroke="#9CA3AF" tick={{ fontSize: 11 }} />
                 <Tooltip contentStyle={{ backgroundColor: '#131822', borderColor: '#1E2638', color: '#fff' }} />
                 <Legend />
-                <Bar dataKey="revenue" name="Revenue (Cr)" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="pat" name="Net Profit (Cr)" fill="#10B981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="revenue" name={isUSD ? "Revenue ($M)" : "Revenue (Cr)"} fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="pat" name={isUSD ? "Net Profit ($M)" : "Net Profit (Cr)"} fill="#10B981" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

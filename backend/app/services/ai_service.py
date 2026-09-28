@@ -21,24 +21,11 @@ class AIService:
         financials_summary: Dict[str, Any],
         quarterly_summary: Dict[str, Any],
         valuation_summary: Dict[str, Any],
-        technical_summary: Dict[str, Any]
+        technical_summary: Dict[str, Any],
+        currency: str = "INR"
     ) -> AIThesisResponse:
         """
         Generates structured evidence-based investment view addressing the 14 core equity research questions:
-        1. Business overview
-        2. Revenue/Profit growth
-        3. Financial health & Debt
-        4. Management & Shareholding
-        5. Cash Flow Generation
-        6. Profitability Margins
-        7. Capital Efficiency (ROE/ROCE)
-        8. Valuation vs History & Peers
-        9. Major Risks
-        10. Recent Results & Commentary
-        11. Technical Trend
-        12. News & Events
-        13. Bull / Base / Bear Scenarios
-        14. Thesis Invalidation Factors
         """
         rev_growth = financials_summary.get('rev_growth_3y', 12.0)
         roe = financials_summary.get('roe', 18.5)
@@ -48,18 +35,21 @@ class AIService:
         pe_median = valuation_summary.get('pe_median_5y', 21.0)
         fcf = financials_summary.get('fcf_cr', 1500.0)
 
+        unit = "M" if currency == "USD" else "Cr"
+        symbol = "$" if currency == "USD" else "₹"
+
         view = "Bullish" if roe > 15.0 and debt_eq < 0.8 and rev_growth > 10.0 else "Neutral"
 
         facts = [
             f"{company_name} operates in the {sector} sector.",
             f"3-Year Revenue CAGR stands at {rev_growth}% with Return on Equity (ROE) of {roe}%.",
-            f"Capital structure shows Debt-to-Equity ratio of {debt_eq:.2f} with {fcf:.0f} Cr Free Cash Flow.",
+            f"Capital structure shows Debt-to-Equity ratio of {debt_eq:.2f} with {symbol}{fcf:.0f} {unit} Free Cash Flow.",
             f"Current P/E of {pe}x compares to 5-Year Historical Median of {pe_median}x."
         ]
 
         bull_case = [
             f"Market leadership in {sector} driving pricing power and sustained >{roe}% ROE.",
-            f"Free cash flow conversion remains strong at {fcf:.0f} Cr enabling capex self-funding.",
+            f"Free cash flow conversion remains strong at {symbol}{fcf:.0f} {unit} enabling capex self-funding.",
             f"Operating leverage margin expansion as revenue scales above fixed cost base."
         ]
 
@@ -87,7 +77,7 @@ class AIService:
             "2. Growth Profile": f"Business revenue has grown at a 3Y CAGR of {rev_growth}%.",
             "3. Financial Health": f"Healthy balance sheet with Debt/Equity of {debt_eq:.2f} and low insolvency risk.",
             "4. Shareholding Quality": "Stable institutional backed ownership structure with zero to low promoter pledging.",
-            "5. Cash Flow Generation": f"Company generated {fcf:.0f} Cr in Free Cash Flow (CFO - Capex).",
+            "5. Cash Flow Generation": f"Company generated {symbol}{fcf:.0f} {unit} in Free Cash Flow (CFO - Capex).",
             "6. Profitability Margins": "High gross and operating margins reflecting premium product positioning.",
             "7. Capital Efficiency": f"Superior capital productivity with ROE at {roe}% and ROCE at {roce}%.",
             "8. Valuation Standing": f"P/E ratio of {pe}x represents a modest premium over 5Y median ({pe_median}x).",
@@ -109,7 +99,8 @@ class AIService:
             base_case=base_case,
             bear_case=bear_case,
             invalidation_factors=invalidation_factors,
-            answers_to_14_questions=answers_14
+            answers_to_14_questions=answers_14,
+            currency=currency
         )
 
     def summarize_earnings(self, ticker: str, quarterly_data: Dict[str, Any]) -> QuarterlyAIAnalysis:

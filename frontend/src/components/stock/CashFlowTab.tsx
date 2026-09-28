@@ -15,10 +15,16 @@ interface CashFlowTabProps {
       severity: string;
       description: string;
     }>;
+    currency?: string;
   };
 }
 
 export default function CashFlowTab({ data }: CashFlowTabProps) {
+  const isUSD = data.currency === 'USD';
+  const symbol = isUSD ? '$' : '₹';
+  const locale = isUSD ? 'en-US' : 'en-IN';
+  const unitLabel = isUSD ? '$ Millions' : '₹ Crores';
+
   return (
     <div className="space-y-6">
       {/* Cash Flow Warning Banner */}
@@ -55,7 +61,7 @@ export default function CashFlowTab({ data }: CashFlowTabProps) {
       {/* Formula Header */}
       <div className="bg-[#131822] border border-[#1E2638] rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white">10-Year Cash Flow Statement (₹ Crores)</h3>
+          <h3 className="text-lg font-bold text-white">10-Year Cash Flow Statement ({unitLabel})</h3>
           <div className="text-xs bg-blue-950/50 text-blue-300 border border-blue-800/50 px-3 py-1 rounded-lg flex items-center gap-1.5 font-mono">
             <Info className="w-3.5 h-3.5 text-blue-400" /> {data.formula}
           </div>
@@ -75,31 +81,31 @@ export default function CashFlowTab({ data }: CashFlowTabProps) {
               <tr className="hover:bg-[#1E2638]/40 font-semibold text-emerald-400">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">Cash Flow from Operations (CFO)</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">₹{r.cfo.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">{symbol}{r.cfo.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40 text-amber-400">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">Capital Expenditure (Capex)</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right">-₹{r.capex.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right">-{symbol}{r.capex.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40 font-black text-white bg-blue-950/20">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">Free Cash Flow (FCF = CFO - Capex)</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right text-blue-400">₹{r.fcf.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right text-blue-400">{symbol}{r.fcf.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">Cash Flow from Investing (CFI)</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right text-gray-400">₹{r.cfi.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right text-gray-400">{symbol}{r.cfi.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40">
                 <td className="py-2.5 px-4 sticky left-0 bg-[#131822]">Cash Flow from Financing (CFF)</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2.5 px-3 text-right text-gray-400">₹{r.cff.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2.5 px-3 text-right text-gray-400">{symbol}{r.cff.toLocaleString(locale)}</td>
                 ))}
               </tr>
 
@@ -112,13 +118,13 @@ export default function CashFlowTab({ data }: CashFlowTabProps) {
               <tr className="hover:bg-[#1E2638]/40">
                 <td className="py-2 px-4 sticky left-0 bg-[#131822]">Net Profit (PAT)</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2 px-3 text-right">₹{r.pat.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2 px-3 text-right">{symbol}{r.pat.toLocaleString(locale)}</td>
                 ))}
               </tr>
               <tr className="hover:bg-[#1E2638]/40">
                 <td className="py-2 px-4 sticky left-0 bg-[#131822]">Working Capital Consumed</td>
                 {data.rows.map((r, i) => (
-                  <td key={i} className="py-2 px-3 text-right">₹{r.working_capital.toLocaleString('en-IN')}</td>
+                  <td key={i} className="py-2 px-3 text-right">{symbol}{r.working_capital.toLocaleString(locale)}</td>
                 ))}
               </tr>
             </tbody>
