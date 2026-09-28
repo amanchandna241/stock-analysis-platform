@@ -3,13 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.api import (
     dashboard, stocks, financials, profitability_growth,
-    valuation, peers, technicals, governance, earnings, rag, news, thesis
+    valuation, peers, technicals, governance, earnings, rag, news, thesis, mutual_funds
 )
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    description="Production-grade AI-Powered Stock Analysis Platform focusing on Indian Equities (NSE/BSE)."
+    description="Production-grade AI-Powered Stock Analysis Platform focusing on Indian Equities (NSE/BSE) & Mutual Funds."
 )
 
 # Enable CORS for Next.js frontend
@@ -34,6 +34,7 @@ app.include_router(earnings.router, prefix=settings.API_V1_STR)
 app.include_router(rag.router, prefix=settings.API_V1_STR)
 app.include_router(news.router, prefix=settings.API_V1_STR)
 app.include_router(thesis.router, prefix=settings.API_V1_STR)
+app.include_router(mutual_funds.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():

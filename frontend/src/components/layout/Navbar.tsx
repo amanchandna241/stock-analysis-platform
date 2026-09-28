@@ -135,6 +135,10 @@ export default function Navbar() {
               <LayoutDashboard className="w-4 h-4 text-blue-400" />
               <span className="hidden sm:inline">Dashboard</span>
             </Link>
+            <Link href="/mutual-funds" className="px-3 py-2 rounded-xl text-sm font-semibold text-amber-400 hover:text-amber-300 bg-amber-950/40 border border-amber-800/50 flex items-center gap-1.5 transition-colors">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span className="hidden sm:inline">Mutual Funds</span>
+            </Link>
             <Link href="/compare" className="px-3 py-2 rounded-xl text-sm font-semibold text-gray-300 hover:text-white hover:bg-[#131822] flex items-center gap-1.5 transition-colors">
               <Layers className="w-4 h-4 text-emerald-400" />
               <span className="hidden sm:inline">Peers</span>
