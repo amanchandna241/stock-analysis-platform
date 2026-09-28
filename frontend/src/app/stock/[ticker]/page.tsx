@@ -107,14 +107,14 @@ export default function StockResearchPage() {
 
   const tabs = [
     { id: 'thesis', label: 'AI Investment Thesis', icon: Sparkles },
+    { id: 'technicals', label: 'Price Chart & Technicals', icon: ChartIcon },
     { id: 'income', label: 'Income Statement (10Y)', icon: FileText },
     { id: 'balance', label: 'Balance Sheet (10Y)', icon: DollarSign },
     { id: 'cashflow', label: 'Cash Flow & Red Flags', icon: Activity },
     { id: 'profitability', label: 'Profitability Trends', icon: TrendingUp },
-    { id: 'growth', label: 'CAGR Growth', icon: ChartIcon },
+    { id: 'growth', label: 'CAGR Growth', icon: Activity },
     { id: 'valuation', label: 'Valuation & DCF', icon: Calculator },
     { id: 'peers', label: 'Peer Comparison', icon: Layers },
-    { id: 'technicals', label: 'Technical Analysis', icon: Activity },
     { id: 'shareholding', label: 'Shareholding', icon: Users },
     { id: 'governance', label: 'Governance & Auditors', icon: ShieldCheck },
     { id: 'earnings', label: 'Earnings Analysis', icon: Sparkles },
@@ -125,7 +125,7 @@ export default function StockResearchPage() {
   return (
     <div className="space-y-6">
       {/* Stock Header */}
-      <StockHeader overview={overview} />
+      <StockHeader overview={overview} chartData={techData?.chart_data} />
 
       {/* Investment Snapshot */}
       {snapshot && <InvestmentSnapshot snapshot={snapshot} />}
