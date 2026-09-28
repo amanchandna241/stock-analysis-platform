@@ -263,10 +263,8 @@ class StockDataService:
         # Determine candidate symbols to query
         if "." in ticker_clean:
             symbols_to_try = [ticker_clean]
-        elif ticker_clean in ["GS", "JPM", "BAC", "C", "MS", "WFC", "TSLA", "AAPL", "MSFT", "NVDA", "GOOGL", "GOOG", "AMZN", "META", "NFLX", "AMD", "INTC", "SPY", "QQQ", "DIS", "V", "MA", "BA", "IBM", "ORCL", "CRM", "UBER"]:
-            symbols_to_try = [ticker_clean]
         else:
-            symbols_to_try = [f"{ticker_clean}.NS", f"{ticker_clean}.BO", ticker_clean]
+            symbols_to_try = [ticker_clean, f"{ticker_clean}.NS", f"{ticker_clean}.BO"]
 
         for symbol in symbols_to_try:
             try:
@@ -376,33 +374,88 @@ class StockDataService:
 
     @classmethod
     def get_search_results(cls, query: str) -> List[Dict[str, Any]]:
-        q = query.upper().strip()
+        q = query.strip()
+        q_upper = q.upper()
         results = []
+        seen_tickers = set()
+
+        # 1. Local Seed Database Search (Instant matching on ticker, name, sector)
         for ticker, data in cls.STOCKS_DB.items():
-            if q in ticker or q in data['name'].upper() or q in data['sector'].upper():
+            if q_upper in ticker or q_upper in data['name'].upper() or q_upper in data['sector'].upper():
                 results.append({
                     "ticker": ticker,
-                    "bse_code": data['bse_code'],
+                    "bse_code": data.get('bse_code'),
+                    "exchange": data.get('exchange', 'NSE'),
                     "name": data['name'],
                     "sector": data['sector'],
                     "current_price": data['current_price'],
                     "currency": data.get('currency', 'INR'),
                     "market_cap_cr": data['market_cap_cr']
                 })
+                seen_tickers.add(ticker)
 
-        # Try live search if query is 2+ chars
+        # 2. Live Company Name & Ticker Search via yfinance.Search API
         if len(q) >= 2:
-            live = cls._fetch_live_market_data(q)
-            if live and not any(r['ticker'] == live['ticker'] for r in results):
-                results.insert(0, {
-                    "ticker": live['ticker'],
-                    "bse_code": live.get('bse_code', 'NSE'),
-                    "name": live['name'],
-                    "sector": live['sector'],
-                    "current_price": live['current_price'],
-                    "currency": live.get('currency', 'INR'),
-                    "market_cap_cr": live['market_cap_cr']
-                })
+            try:
+                search_obj = yf.Search(q)
+                quotes = search_obj.quotes or []
+                for item in quotes[:6]:
+                    raw_symbol = item.get('symbol', '').upper()
+                    if not raw_symbol:
+                        continue
+                    
+                    # Clean symbol (remove .NS, .BO suffixes for display ticker)
+                    clean_ticker = raw_symbol.split('.')[0]
+                    if clean_ticker in seen_tickers:
+                        continue
+
+                    name = item.get('longname') or item.get('shortname') or clean_ticker
+                    sector = item.get('sector') or item.get('typeDisp') or "Equities"
+                    exch = item.get('exchDisp') or item.get('exchange') or 'NYSE'
+                    
+                    is_indian = '.NS' in raw_symbol or '.BO' in raw_symbol or exch in ['NSE', 'BSE', 'Bombay']
+                    currency = 'INR' if is_indian else 'USD'
+
+                    # Fetch live market snapshot for price & market cap
+                    live_data = cls._fetch_live_market_data(raw_symbol)
+                    if live_data:
+                        results.append({
+                            "ticker": live_data['ticker'],
+                            "bse_code": live_data.get('bse_code'),
+                            "exchange": live_data.get('exchange', exch),
+                            "name": live_data['name'],
+                            "sector": live_data['sector'],
+                            "current_price": live_data['current_price'],
+                            "currency": live_data.get('currency', currency),
+                            "market_cap_cr": live_data['market_cap_cr']
+                        })
+                        seen_tickers.add(live_data['ticker'])
+                    else:
+                        results.append({
+                            "ticker": clean_ticker,
+                            "bse_code": None,
+                            "exchange": exch,
+                            "name": name,
+                            "sector": sector,
+                            "current_price": 0.0,
+                            "currency": currency,
+                            "market_cap_cr": 0.0
+                        })
+                        seen_tickers.add(clean_ticker)
+            except Exception:
+                # Direct ticker fallback if yf.Search fails
+                live = cls._fetch_live_market_data(q_upper)
+                if live and live['ticker'] not in seen_tickers:
+                    results.insert(0, {
+                        "ticker": live['ticker'],
+                        "bse_code": live.get('bse_code'),
+                        "exchange": live.get('exchange', 'NYSE'),
+                        "name": live['name'],
+                        "sector": live['sector'],
+                        "current_price": live['current_price'],
+                        "currency": live.get('currency', 'INR'),
+                        "market_cap_cr": live['market_cap_cr']
+                    })
 
         return results
 
