@@ -38,7 +38,7 @@ app.include_router(mutual_funds.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():
-    return {"message": "Antigravity Stock Research API is running", "docs": "/docs"}
+    return {"message": "Apex Equity Research API is running", "docs": "/docs"}
 
 @app.get("/health")
 def health():

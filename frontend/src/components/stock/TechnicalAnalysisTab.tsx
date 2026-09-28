@@ -44,7 +44,27 @@ export default function TechnicalAnalysisTab({ data }: TechTabProps) {
   const isUSD = data.currency === 'USD';
   const symbol = isUSD ? '$' : '₹';
 
-  const timeframes = ['1D', '1W', '1M', '3M', '6M', '1Y', '3Y', '5Y', 'MAX'];
+  const timeframes = ['1D', '3D', '5D', '1M', '6M', '1Y', '3Y', '5Y', 'ALL'];
+
+  const getFilteredChartData = () => {
+    if (!data.chart_data || data.chart_data.length === 0) return [];
+    switch (timeframe) {
+      case '1D': return data.chart_data.slice(-5);
+      case '3D': return data.chart_data.slice(-15);
+      case '5D': return data.chart_data.slice(-25);
+      case '1M': return data.chart_data.slice(-30);
+      case '6M': return data.chart_data.slice(-120);
+      case '1Y': return data.chart_data.slice(-250);
+      case '3Y': return data.chart_data.slice(-750);
+      case '5Y': return data.chart_data.slice(-1250);
+      case 'ALL':
+      default:
+        return data.chart_data;
+    }
+  };
+
+  const filteredChartData = getFilteredChartData();
+  const xAxisInterval = Math.max(0, Math.floor(filteredChartData.length / 8));
 
   return (
     <div className="space-y-8">
@@ -116,9 +136,9 @@ export default function TechnicalAnalysisTab({ data }: TechTabProps) {
 
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data.chart_data}>
+            <LineChart data={filteredChartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1E2638" />
-              <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fontSize: 10 }} interval={30} />
+              <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fontSize: 10 }} interval={xAxisInterval} />
               <YAxis yAxisId="price" stroke="#9CA3AF" tick={{ fontSize: 10 }} domain={['auto', 'auto']} />
               {showNifty && <YAxis yAxisId="nifty" orientation="right" stroke="#10B981" tick={{ fontSize: 10 }} domain={['auto', 'auto']} />}
               <Tooltip contentStyle={{ backgroundColor: '#131822', borderColor: '#1E2638', color: '#fff' }} />

@@ -104,25 +104,25 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 text-xl font-bold text-white tracking-tight shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black shadow-lg shadow-blue-500/30 text-xl">
-              AG
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-black shadow-lg shadow-blue-500/20 text-lg">
+              AX
             </div>
-            <span className="hidden sm:inline text-2xl font-black">Antigravity<span className="text-blue-500 font-normal">Equity</span></span>
+            <span className="hidden sm:inline text-xl font-black">Apex<span className="text-blue-500 font-normal">Equity</span></span>
           </Link>
 
-          {/* ULTRA-SPACIOUS SEARCH TRIGGER BAR */}
-          <div className="flex-1 max-w-2xl mx-2">
+          {/* SLEEK, COMPACT SEARCH TRIGGER BAR */}
+          <div className="flex-1 max-w-lg mx-2">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="w-full bg-[#1E293B] hover:bg-[#28364E] text-white border-2 border-blue-500/80 rounded-2xl px-5 py-3 flex items-center justify-between shadow-xl transition-all group"
+              className="w-full bg-[#1A2234] hover:bg-[#232D42] text-white border border-blue-500/50 hover:border-blue-400 rounded-xl px-3.5 py-1.5 flex items-center justify-between shadow-md transition-all group"
             >
-              <div className="flex items-center gap-3">
-                <Search className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
-                <span className="text-gray-300 font-bold text-sm sm:text-base tracking-wide">
-                  SEARCH ANY STOCK TICKER (e.g. RELIANCE, SBIN, AAPL)...
+              <div className="flex items-center gap-2 min-w-0">
+                <Search className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
+                <span className="text-gray-300 font-semibold text-xs sm:text-sm truncate">
+                  Search any ticker or company name (e.g. RELIANCE, SBIN, Goldman Sachs, AAPL)...
                 </span>
               </div>
-              <div className="hidden sm:flex items-center gap-1.5 text-xs text-gray-400 font-mono bg-[#0F172A] px-2.5 py-1 rounded-lg border border-gray-700">
+              <div className="hidden sm:flex items-center gap-1 text-[10px] text-gray-400 font-mono bg-[#0F172A] px-2 py-0.5 rounded border border-gray-700 shrink-0 ml-2">
                 <span>Ctrl</span> <span>+</span> <span>K</span>
               </div>
             </button>

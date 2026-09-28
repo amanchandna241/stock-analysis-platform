@@ -154,7 +154,21 @@ export default function MutualFundDetailPage() {
             <p className="text-xs text-gray-400">Grounded historical NAV curve with benchmark index overlay.</p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 bg-[#0B0E14] p-1 rounded-xl border border-[#1E2638]">
+              {['1D', '3D', '5D', '1M', '6M', '1Y', '3Y', '5Y', 'ALL'].map((tf) => (
+                <button
+                  key={tf}
+                  onClick={() => setTimeframe(tf)}
+                  className={`px-2.5 py-1 text-xs rounded-lg font-semibold transition-colors ${
+                    timeframe === tf ? 'bg-amber-600 text-white' : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  {tf}
+                </button>
+              ))}
+            </div>
+
             <button
               onClick={() => setShowBenchmark(!showBenchmark)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors ${
@@ -166,20 +180,43 @@ export default function MutualFundDetailPage() {
           </div>
         </div>
 
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={detail.nav_history}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E2638" />
-              <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fontSize: 10 }} interval={40} />
-              <YAxis yAxisId="nav" stroke="#9CA3AF" tick={{ fontSize: 10 }} domain={['auto', 'auto']} />
-              {showBenchmark && <YAxis yAxisId="bench" orientation="right" stroke="#F59E0B" tick={{ fontSize: 10 }} domain={['auto', 'auto']} />}
-              <Tooltip contentStyle={{ backgroundColor: '#131822', borderColor: '#1E2638', color: '#fff' }} />
-              <Legend />
-              <Line yAxisId="nav" type="monotone" dataKey="nav" name="Scheme NAV (₹)" stroke="#10B981" strokeWidth={2.5} dot={false} />
-              {showBenchmark && <Line yAxisId="bench" type="monotone" dataKey="benchmark_val" name="Category Benchmark" stroke="#F59E0B" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />}
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        {(() => {
+          const getFilteredNavHistory = () => {
+            if (!detail?.nav_history || detail.nav_history.length === 0) return [];
+            switch (timeframe) {
+              case '1D': return detail.nav_history.slice(-2);
+              case '3D': return detail.nav_history.slice(-5);
+              case '5D': return detail.nav_history.slice(-10);
+              case '1M': return detail.nav_history.slice(-25);
+              case '6M': return detail.nav_history.slice(-120);
+              case '1Y': return detail.nav_history.slice(-250);
+              case '3Y': return detail.nav_history.slice(-750);
+              case '5Y': return detail.nav_history.slice(-1250);
+              case 'ALL':
+              default:
+                return detail.nav_history;
+            }
+          };
+          const navData = getFilteredNavHistory();
+          const navInterval = Math.max(0, Math.floor(navData.length / 8));
+
+          return (
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={navData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1E2638" />
+                  <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fontSize: 10 }} interval={navInterval} />
+                  <YAxis yAxisId="nav" stroke="#9CA3AF" tick={{ fontSize: 10 }} domain={['auto', 'auto']} />
+                  {showBenchmark && <YAxis yAxisId="bench" orientation="right" stroke="#F59E0B" tick={{ fontSize: 10 }} domain={['auto', 'auto']} />}
+                  <Tooltip contentStyle={{ backgroundColor: '#131822', borderColor: '#1E2638', color: '#fff' }} />
+                  <Legend />
+                  <Line yAxisId="nav" type="monotone" dataKey="nav" name="Scheme NAV (₹)" stroke="#10B981" strokeWidth={2.5} dot={false} />
+                  {showBenchmark && <Line yAxisId="bench" type="monotone" dataKey="benchmark_val" name="Category Benchmark" stroke="#F59E0B" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Quantitative Risk Ratios & Holdings Grid */}

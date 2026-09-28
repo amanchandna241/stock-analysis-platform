@@ -2,7 +2,7 @@ import os
 from pydantic import BaseModel
 
 class Settings(BaseModel):
-    PROJECT_NAME: str = "Antigravity Equity Research Platform"
+    PROJECT_NAME: str = "Apex Equity Research Platform"
     API_V1_STR: str = "/api/v1"
     
     # LLM API Keys
