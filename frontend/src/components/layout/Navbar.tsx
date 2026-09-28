@@ -106,11 +106,7 @@ export default function Navbar() {
               NIFTY IT: <span className="text-red-400 font-medium">42,150.30 (-0.43%)</span>
             </span>
           </div>
-          <div className="hidden md:flex items-center space-x-3 text-gray-400">
-            <span className="text-xs bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded border border-blue-800/50">
-              LLM Provider: Auto (Gemini / Anthropic / OpenAI)
-            </span>
-          </div>
+
         </div>
 
         {/* Main Header Bar */}
@@ -163,9 +159,9 @@ export default function Navbar() {
               <FileText className="w-4 h-4 text-purple-400" />
               <span className="hidden sm:inline">RAG Q&A</span>
             </Link>
-            <Link href="/architecture" className="px-3 py-2 rounded-xl text-sm font-semibold text-blue-400 hover:text-blue-300 bg-blue-950/40 border border-blue-800/50 flex items-center gap-1.5 transition-colors">
+            <Link href="/architecture" className="px-3 py-2 rounded-xl text-sm font-semibold text-gray-300 hover:text-white hover:bg-[#131822] flex items-center gap-1.5 transition-colors">
               <Cpu className="w-4 h-4 text-blue-400" />
-              <span className="hidden md:inline">AWS Infra</span>
+              <span className="hidden md:inline">Architecture</span>
             </Link>
           </nav>
         </div>
