@@ -97,7 +97,6 @@ export default function Navbar() {
             <span className="text-xs bg-blue-900/40 text-blue-400 px-2 py-0.5 rounded border border-blue-800/50">
               LLM Provider: Auto (Gemini / Anthropic / OpenAI)
             </span>
-            <span>Market Open 15:30 IST</span>
           </div>
         </div>
 
