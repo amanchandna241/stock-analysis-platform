@@ -14,23 +14,36 @@ export default function Navbar() {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // Handle live search fetching
+  // Handle live search fetching with AbortController & stale-response cancellation
   useEffect(() => {
-    if (searchQuery.trim().length >= 1) {
+    const q = searchQuery.trim();
+    if (q.length >= 1) {
       setIsSearching(true);
+      const controller = new AbortController();
+      const signal = controller.signal;
+
       const timer = setTimeout(() => {
-        fetchApi<any[]>(`/stocks/search?q=${encodeURIComponent(searchQuery.trim())}`)
+        fetchApi<any[]>(`/stocks/search?q=${encodeURIComponent(q)}`, { signal })
           .then((res) => {
-            setSearchResults(res || []);
-            setIsSearching(false);
+            if (!signal.aborted) {
+              setSearchResults(res || []);
+              setIsSearching(false);
+            }
           })
-          .catch(() => {
-            setIsSearching(false);
+          .catch((err) => {
+            if (!signal.aborted && err.name !== 'AbortError') {
+              setIsSearching(false);
+            }
           });
       }, 150);
-      return () => clearTimeout(timer);
+
+      return () => {
+        clearTimeout(timer);
+        controller.abort();
+      };
     } else {
       setSearchResults([]);
+      setIsSearching(false);
     }
   }, [searchQuery]);
 
