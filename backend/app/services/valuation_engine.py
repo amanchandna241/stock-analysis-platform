@@ -91,3 +91,14 @@ class ValuationEngine:
             sensitivity_waccs=[round(w * 100, 1) for w in wacc_steps],
             sensitivity_growths=[round(g * 100, 1) for g in growth_steps]
         )
+
+    @staticmethod
+    def calculate_graham_number(eps: float, book_value_per_share: float) -> float:
+        """
+        Graham Number: sqrt(22.5 * EPS * BVPS)
+        Returns 0.0 if either value is non-positive.
+        """
+        if eps <= 0 or book_value_per_share <= 0:
+            return 0.0
+        return round((22.5 * eps * book_value_per_share) ** 0.5, 2)
+

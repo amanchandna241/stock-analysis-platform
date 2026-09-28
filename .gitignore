@@ -14,6 +14,8 @@ __pycache__/
 *.pyo
 *.pyd
 .pytest_cache/
+.coverage
+htmlcov/
 
 # Environment Variables & Keys
 .env

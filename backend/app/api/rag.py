@@ -122,6 +122,14 @@ def query_documents(req: RAGQueryRequest):
     ai_service = AIService()
     return ai_service.query_document_rag(ticker=ticker, query=req.query, document_chunks=chunks)
 
+@router.get("/{ticker}/documents")
+def get_rag_documents(ticker: str):
+    """
+    Returns indexed RAG document chunks and citations for a ticker.
+    """
+    ticker_clean = ticker.upper().strip()
+    return PREINDEXED_DOCS.get(ticker_clean) or _generate_dynamic_rag_chunks(ticker_clean)
+
 @router.post("/upload")
 def upload_document(ticker: str = Form(...), doc_type: str = Form("Annual Report"), file: UploadFile = File(...)):
     """
@@ -136,4 +144,5 @@ def upload_document(ticker: str = Form(...), doc_type: str = Form("Annual Report
         "pages_processed": 142,
         "chunks_indexed": 385
     }
+
 
