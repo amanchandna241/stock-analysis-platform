@@ -256,7 +256,11 @@ export default function Navbar() {
 
                       <div className="text-right">
                         <div className="font-black text-white text-base">
-                          {st.currency === 'USD' ? '$' : '₹'}{st.current_price}
+                          {st.current_price > 0 ? (
+                            `${st.currency === 'USD' ? '$' : '₹'}${st.current_price.toLocaleString(st.currency === 'USD' ? 'en-US' : 'en-IN')}`
+                          ) : (
+                            <span className="text-xs text-blue-400 font-medium bg-blue-950/60 px-2 py-0.5 rounded border border-blue-800/40">Realtime Quote</span>
+                          )}
                         </div>
                         <div className="text-blue-400 text-xs font-bold flex items-center justify-end gap-1 group-hover:translate-x-1 transition-transform">
                           <span>Open Research Page</span>

@@ -737,10 +737,17 @@ class StockDataService:
                     if score <= 0:
                         score = 40  # fallback score for external search match
 
-                    # Check if live quote is already in cache
-                    cached_quote = cls._LIVE_QUOTE_CACHE.get(clean_ticker)
-                    current_price = cached_quote[1]['current_price'] if cached_quote else 0.0
-                    mcap_cr = cached_quote[1]['market_cap_cr'] if cached_quote else 0.0
+                    # Fetch or load live market quote data (checks 10-min cache first)
+                    live_quote = cls._fetch_live_market_data(raw_symbol) or cls._fetch_live_market_data(clean_ticker)
+                    if live_quote:
+                        current_price = live_quote['current_price']
+                        mcap_cr = live_quote['market_cap_cr']
+                        name = live_quote['name']
+                        sector = live_quote['sector']
+                        currency = live_quote.get('currency', currency)
+                    else:
+                        current_price = 0.0
+                        mcap_cr = 0.0
 
                     res_item = {
                         "ticker": clean_ticker,
