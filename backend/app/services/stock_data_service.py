@@ -263,8 +263,10 @@ class StockDataService:
         # Determine candidate symbols to query
         if "." in ticker_clean:
             symbols_to_try = [ticker_clean]
+        elif ticker_clean in ["GS", "JPM", "BAC", "C", "MS", "WFC", "TSLA", "AAPL", "MSFT", "NVDA", "GOOGL", "GOOG", "AMZN", "META", "NFLX", "AMD", "INTC", "SPY", "QQQ", "DIS", "V", "MA", "BA", "IBM", "ORCL", "CRM", "UBER"]:
+            symbols_to_try = [ticker_clean]
         else:
-            symbols_to_try = [ticker_clean, f"{ticker_clean}.NS", f"{ticker_clean}.BO"]
+            symbols_to_try = [f"{ticker_clean}.NS", f"{ticker_clean}.BO", ticker_clean]
 
         for symbol in symbols_to_try:
             try:
@@ -330,7 +332,7 @@ class StockDataService:
                 elif symbol.isdigit():
                     bse_code = symbol
                 else:
-                    bse_code = merged.get('bse_code')
+                    bse_code = cls.STOCKS_DB.get(ticker_clean, {}).get('bse_code')
 
                 chg_amt = round(curr_price - prev_close, 2)
                 chg_pct = round((chg_amt / max(0.01, prev_close)) * 100.0, 2)
