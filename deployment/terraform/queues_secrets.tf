@@ -7,11 +7,27 @@ resource "aws_sqs_queue" "doc_queue" {
   receive_wait_time_seconds = 10
 }
 
+# SQS Queue for Mutual Fund NAV Refresh & Sector Holdings Processing
+resource "aws_sqs_queue" "mf_nav_queue" {
+  name                      = "${var.app_name}-mf-nav-sync-queue"
+  delay_seconds             = 0
+  max_message_size          = 262144
+  message_retention_seconds = 86400
+  receive_wait_time_seconds = 10
+}
+
 # EventBridge Rule for Daily Market Close Sync (15:30 IST = 10:00 UTC)
 resource "aws_cloudwatch_event_rule" "market_close_sync" {
   name                = "${var.app_name}-market-close-sync"
   description         = "Triggers daily market close data import at 15:30 IST"
   schedule_expression = "cron(0 10 ? * MON-FRI *)"
+}
+
+# EventBridge Rule for Daily Mutual Fund NAV & AMFI Data Sync (20:00 IST = 14:30 UTC)
+resource "aws_cloudwatch_event_rule" "mf_nav_sync" {
+  name                = "${var.app_name}-mf-nav-sync"
+  description         = "Triggers daily Indian Mutual Funds NAV & AMFI sector holdings sync at 20:00 IST"
+  schedule_expression = "cron(30 14 ? * MON-FRI *)"
 }
 
 # Secrets Manager for LLM Keys

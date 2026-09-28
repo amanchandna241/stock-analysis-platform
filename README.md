@@ -1,72 +1,73 @@
 # 📈 Antigravity AI Stock Research & Analysis Platform
 
-A production-quality equity research and financial analysis platform focused on **Indian Equities (NSE/BSE)** and designed to scale globally to US and international markets.
+A production-quality equity research and financial analysis platform focused on **Indian Equities (NSE/BSE)**, **Indian Mutual Funds (AMFI)**, and **US & International Markets**.
 
-Functioning like a professional institutional equity research tool rather than a simple price dashboard, the application combines **live real-time market data feeds**, 10-year financial statements, automated Cash Flow red flag detection, interactive DCF valuation modeling with 5x5 sensitivity matrices, technical indicator analysis with NIFTY 50 benchmark overlays, Annual Report RAG intelligence, AI-synthesized investment views, **dynamic user watchlists & alerts**, and a **customizable multi-stock peer comparison matrix**.
+Functioning like a professional institutional equity research tool rather than a simple price dashboard, the application combines **live real-time market data feeds**, open-source data APIs (`mfapi.in`), 10-year financial statements, automated Cash Flow red flag detection, interactive DCF valuation modeling with 5x5 sensitivity matrices, technical indicator analysis with NIFTY 50 benchmark overlays, Annual Report RAG intelligence, AI-synthesized investment views, **dynamic user watchlists & alerts**, **Indian Mutual Fund performance & AI recommendations**, and a **customizable multi-stock peer comparison matrix**.
 
 ---
 
 ## 🌟 Key Features
 
-### 1. ⚡ Live Real-Time Market Data & Command Palette (`Ctrl+K`)
+### 1. 🇮🇳 Indian Mutual Funds Analytics & Open API Data Engine (`/mutual-funds`)
+- **Live Open API Integration (`mfapi.in`)**: Connects to open-source AMFI APIs for real-time Scheme NAV histories, scheme details, and manager profiles across 10,000+ Indian mutual fund schemes.
+- **CAGR Performance Ratios**: Automatically computes **1-Year, 3-Year, and 5-Year CAGR** returns, Sharpe Ratios, historical volatility, and Riskometer risk classifications.
+- **Category Heatmaps**: Interactive performance breakdown across Small Cap, Flexi Cap, Large Cap, Mid Cap, ELSS, Debt, Hybrid, and Index Funds.
+- **Top 5-Star AI Recommendations**: Quantitative scoring and natural language recommendation rationale for top-performing schemes.
+- **Scheme Detail Page (`/mutual-funds/[scheme_code]`)**: Interactive NAV history charts with NIFTY 50 benchmark overlay, expense ratios, exit loads, top sector allocations, and top equity holdings.
+
+### 2. 💵 Multi-Currency USD Support for US Equities
+- **Dynamic Currency Formatting**: Seamlessly displays balance sheets, income statements, cash flow statements, and market caps in **USD ($)** for US equities (`AAPL`, `NVDA`, `MSFT`, `TSLA`, `GOOG`) and **INR (₹ / Cr)** for Indian equities.
+- **Cross-Currency AI Models**: Context-aware LLM research models that parse and output currency-matched financial metrics without units confusion.
+
+### 3. ⚡ Live Real-Time Market Data & Command Palette (`Ctrl+K`)
 - **Live Price Quotes & Market Caps**: Connects to live exchange feeds (`yfinance`) for real-time stock prices, daily price changes, market caps, 52-week highs/lows, and corporate summaries.
 - **Global & Indian Equities Support**: Dynamically fetches data for any Indian ticker (`RELIANCE`, `SBIN`, `TCS`, `INFY`, `HDFCBANK`, `ICICIBANK`, `BHARTIARTL`, `TATAMOTORS`, `WIPRO`) or US ticker (`AAPL`, `NVDA`, `MSFT`, `TSLA`).
 - **Command Palette Global Search (`Ctrl+K`)**: Ultra-spacious, high-contrast search modal with instant autocomplete suggestions, dark-mode input overrides, and keyboard shortcuts.
 - **Resilient Fallback Engine**: Seamlessly falls back to local data if exchange APIs rate-limit or go offline, guaranteeing high availability.
 
-### 2. 🎯 Dynamic Watchlist & Custom Alerts Management
+### 4. 👥 Shareholding Pattern & Governance Analysis
+- **Institutional Shareholding Trends**: 5-quarter breakdown of FII, DII, Promoter, and Public equity holding changes.
+- **Promoter Pledge Risk Monitor**: Real-time tracking of promoter pledge percentage to alert on financial leverage risks.
+- **Governance Audit Timeline**: Systematized logging of auditor changes, SEBI compliance notices, board changes, and related-party transaction events.
+
+### 5. 🎯 Dynamic Watchlist & Custom Alerts Management
 - **Interactive Ticker Watchlist**: Add any stock ticker on-the-fly to your dynamic equity research dashboard with live market quotes, P/E multiples, and individual removal (`X`) actions.
 - **Custom Valuation & Signal Alerts**: Set custom price, P/E ratio, breakout, or target price alerts per stock with type classifications (`Valuation Opportunity`, `Breakout`, `Target Price Hit`, `Earnings Signal`).
 - **Stateful Persistence**: Synchronized via backend API (`/api/v1/dashboard/watchlist/add`, `/api/v1/dashboard/alerts/add`).
 
-### 3. 📊 Multi-Stock Peer & Sector Comparison Matrix
+### 6. 📊 Multi-Stock Peer & Sector Comparison Matrix
 - **Custom Competitor Matrix**: Add or remove arbitrary competitor tickers dynamically to generate multi-stock comparison matrices comparing 3Y Revenue Growth, EBITDA Margins, 3Y PAT Growth, ROE, ROCE, Debt/Equity, P/E, EV/EBITDA, and Free Cash Flow Yield.
 - **Dynamic Metric Sorting**: Click any metric header to instantly sort peers in ascending or descending order.
 - **Active Peer Filtering**: Manage up to 15 concurrent peers with dedicated ticker badges and target-stock highlights.
 
-### 4. 📈 Investment Snapshot & 10-Year Financial Statement Analysis
+### 7. 📈 Investment Snapshot & 10-Year Financial Statement Analysis
 - **Income Statement**: 10-year revenue, EBITDA, EBIT, PBT, PAT, EPS, and operating margin trends with interactive growth charts.
 - **Balance Sheet**: 10-year Cash, Debt, Net Debt, Receivables, Inventory, Payables, Assets, Equity, and solvency ratios (Debt/Equity, Net Debt/EBITDA, Interest Coverage, Current Ratio, Asset Turnover).
 - **Cash Flow Statement**: Operating Cash Flow (CFO), Capex, Free Cash Flow ($FCF = CFO - Capex$), CFI, CFF, Net Profit (PAT), and Working Capital.
 
-### 5. 🚨 Automated Cash Flow Red Flag Engine
+### 8. 🚨 Automated Cash Flow Red Flag Engine
 Identifies earnings quality risks and capital intensity warning signals:
 - **Divergence**: Net Profit (PAT) rising over 3 years while Free Cash Flow (FCF) declines.
 - **Cash Conversion Lag**: Operating Cash Flow consistently below Net Profit ($CFO / PAT < 0.8$).
 - **Working Capital Expansion**: Receivables/Inventory expanding faster than sales growth.
 
-### 6. 🧮 Configurable DCF Valuation Engine & Sensitivity Matrix
+### 9. 🧮 Configurable DCF Valuation Engine & Sensitivity Matrix
 - **Interactive Assumptions**: Sliders for Revenue Growth Rate, EBITDA Margin, Tax Rate, WACC Discount Rate, and Terminal Growth Rate.
 - **5x5 Sensitivity Matrix**: Automatically calculates a heatmap table displaying implied fair share prices across varying WACC and Terminal Growth rate combinations.
 - **Relative & Historical Valuation**: P/E, P/B, EV/EBITDA, Dividend Yield compared against sector median, peers, and 5-year historical percentiles.
 
-### 7. 📈 Technical Analysis & Benchmark Overlay
+### 10. 📈 Technical Analysis & Benchmark Overlay
 - **Indicators**: SMA 20/50/100/200, EMA 20/50, RSI 14, MACD, Bollinger Bands, ATR, Volume MA.
 - **Interactive Chart**: 1D, 1W, 1M, 3M, 6M, 1Y, 3Y, 5Y, MAX timeframes with **NIFTY 50 Benchmark Overlay**.
 - **Factual Pattern Identification**: Non-recommendatory pattern detection badges.
 - **Risk Metrics**: 1Y Absolute Return, Relative Return vs. Nifty, Annualized Volatility, Max Drawdown, and Sharpe Ratio ($R_f=6.5\%$).
 
-### 8. 📑 Filings & Annual Report RAG Intelligence
+### 11. 📑 Filings & Annual Report RAG Intelligence
 - Upload PDF/text Annual Reports, Investor Presentations, and Earnings Call Transcripts.
 - Ask natural language questions (*"Why did margins decline?"*, *"What are the key risks?"*) and receive grounded answers with **Document Name, Year, and Page Number Citations**.
 
-### 9. 🤖 Evidence-Based AI Investment Thesis
-- Directly addresses the **14 Core Equity Research Questions**:
-  1. What does this company do?
-  2. Is the business growing?
-  3. Is it financially healthy?
-  4. Is management/shareholding quality reasonable?
-  5. Is the company generating cash?
-  6. How profitable is the business?
-  7. How efficiently does it use capital?
-  8. How does its valuation compare with history and peers?
-  9. What are the major risks?
-  10. What do recent results and management commentary indicate?
-  11. What is the technical trend?
-  12. What are the important recent news/events?
-  13. What are bull/base/bear scenarios?
-  14. What factors could invalidate the investment thesis?
-- Generates **Bull, Base, and Bear Case Scenarios** and explicit **Thesis Invalidation Factors**.
+### 12. 🤖 Evidence-Based AI Investment Thesis
+- Directly addresses the **14 Core Equity Research Questions** (business model, financial health, management quality, cash flow quality, capital efficiency, scenario modeling, thesis invalidation factors).
 
 ---
 
@@ -80,7 +81,7 @@ Identifies earnings quality risks and capital intensity warning signals:
 
 ### **Backend**
 - **Framework**: Python 3.10 + FastAPI
-- **Market Data Feeds**: `yfinance`, `beautifulsoup4`, `lxml`
+- **Market & Mutual Fund Data Feeds**: `mfapi.in` (Open AMFI API), `yfinance`, `beautifulsoup4`, `lxml`
 - **Validation**: Pydantic v2
 - **Data Engines**: Pandas & NumPy
 - **Database ORM**: SQLAlchemy & SQLite/PostgreSQL
@@ -100,8 +101,13 @@ Identifies earnings quality risks and capital intensity warning signals:
 | `/api/v1/dashboard/watchlist/remove` | `DELETE` | Removes ticker from active user Watchlist |
 | `/api/v1/dashboard/alerts/add` | `POST` | Creates custom valuation or signal alert |
 | `/api/v1/dashboard/alerts/remove` | `DELETE` | Dismisses active alert by ID |
+| `/api/v1/mutual-funds/explore` | `GET` | Mutual funds dashboard, category heatmaps, and top 5-star recommendations |
+| `/api/v1/mutual-funds/search` | `GET` | Search Indian mutual fund schemes by name or AMFI scheme code |
+| `/api/v1/mutual-funds/{scheme_code}` | `GET` | Scheme details, NAV history, benchmark overlay, risk ratios, sector & stock holdings |
+| `/api/v1/governance/{ticker}/shareholding` | `GET` | FII, DII, Promoter, and Public shareholding trend with pledge monitoring |
+| `/api/v1/governance/{ticker}/governance-events` | `GET` | Corporate governance risk timeline and audit disclosures |
 | `/api/v1/peers/{ticker}` | `GET` | Returns multi-stock comparative matrix (supports `?custom_peers=...`) |
-| `/api/v1/stocks/{ticker}` | `GET` | Financial statement overview & key metrics |
+| `/api/v1/stocks/{ticker}` | `GET` | Financial statement overview & key metrics (USD / INR context) |
 | `/api/v1/valuation/{ticker}` | `GET` | Relative valuation & DCF model with sensitivity matrix |
 | `/api/v1/technicals/{ticker}` | `GET` | Technical indicators & NIFTY benchmark overlay |
 | `/api/v1/rag/query` | `POST` | Queries filings vector DB for RAG answers with citations |

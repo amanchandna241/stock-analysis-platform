@@ -32,3 +32,8 @@ output "s3_filings_bucket" {
   description = "S3 Filings Document Storage Bucket Name"
   value       = aws_s3_bucket.filings.id
 }
+
+output "mf_nav_queue_url" {
+  description = "SQS Queue URL for Indian Mutual Funds NAV & AMFI Data Sync"
+  value       = aws_sqs_queue.mf_nav_queue.id
+}
