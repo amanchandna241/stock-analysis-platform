@@ -18,17 +18,17 @@ class StockDataService:
             "name": "Reliance Industries Limited",
             "sector": "Energy & Conglomerate",
             "industry": "Oil & Gas / Retail / Telecom",
-            "current_price": 2985.40,
-            "change_amount": 24.50,
-            "change_percent": 0.83,
+            "current_price": 1182.00,
+            "change_amount": 12.50,
+            "change_percent": 1.07,
             "currency": "INR",
-            "market_cap_cr": 2019840.0,
-            "pe_ratio": 28.4,
-            "pb_ratio": 2.6,
-            "ev_ebitda": 14.8,
-            "dividend_yield": 0.35,
-            "high_52w": 3217.90,
-            "low_52w": 2220.30,
+            "market_cap_cr": 1600000.0,
+            "pe_ratio": 24.4,
+            "pb_ratio": 2.2,
+            "ev_ebitda": 13.8,
+            "dividend_yield": 0.45,
+            "high_52w": 1608.00,
+            "low_52w": 1110.00,
             "last_updated": "2026-09-28 Live Market Feed",
             "business_summary": "Reliance Industries Limited is India's largest private enterprise with diversified business spanning hydrocarbon exploration and refining, petrochemicals, digital services (Jio), retail, and new green energy solutions.",
             "key_products": ["Jio 5G Telecom", "Reliance Retail", "O2C Refining & Petrochemicals", "Green Energy Giga Complex"],
@@ -55,17 +55,17 @@ class StockDataService:
             "name": "Tata Consultancy Services Limited",
             "sector": "Information Technology",
             "industry": "IT Services & Consulting",
-            "current_price": 4280.15,
+            "current_price": 2032.40,
             "change_amount": -18.70,
             "change_percent": -0.43,
             "currency": "INR",
-            "market_cap_cr": 1548200.0,
-            "pe_ratio": 32.1,
-            "pb_ratio": 15.2,
-            "ev_ebitda": 23.5,
-            "dividend_yield": 1.45,
-            "high_52w": 4585.00,
-            "low_52w": 3450.00,
+            "market_cap_cr": 740000.0,
+            "pe_ratio": 24.1,
+            "pb_ratio": 11.2,
+            "ev_ebitda": 17.5,
+            "dividend_yield": 1.85,
+            "high_52w": 2585.00,
+            "low_52w": 1850.00,
             "last_updated": "2026-09-28 Live Market Feed",
             "business_summary": "Tata Consultancy Services is an IT services, consulting and business solutions organization that has been partnering with many of the world's largest businesses in their transformation journeys for over 50 years.",
             "key_products": ["TCS BaNCS", "TCS iON", "Ignio AI Platform", "Cloud & Cybersecurity Services"],
@@ -92,17 +92,17 @@ class StockDataService:
             "name": "Infosys Limited",
             "sector": "Information Technology",
             "industry": "IT Services & Consulting",
-            "current_price": 1945.80,
+            "current_price": 1015.40,
             "change_amount": 12.30,
-            "change_percent": 0.64,
+            "change_percent": 1.23,
             "currency": "INR",
-            "market_cap_cr": 807400.0,
-            "pe_ratio": 29.8,
-            "pb_ratio": 9.8,
-            "ev_ebitda": 20.1,
-            "dividend_yield": 2.10,
-            "high_52w": 2020.00,
-            "low_52w": 1355.00,
+            "market_cap_cr": 420000.0,
+            "pe_ratio": 22.8,
+            "pb_ratio": 6.8,
+            "ev_ebitda": 15.1,
+            "dividend_yield": 2.40,
+            "high_52w": 1220.00,
+            "low_52w": 955.00,
             "last_updated": "2026-09-28 Live Market Feed",
             "business_summary": "Infosys Limited is a global leader in next-generation digital services and consulting, enabling clients across 56 countries to navigate their digital transformation.",
             "key_products": ["Finacle Banking Platform", "Infosys Topaz AI", "Infosys Cobalt Cloud"],
@@ -129,17 +129,17 @@ class StockDataService:
             "name": "HDFC Bank Limited",
             "sector": "Financial Services",
             "industry": "Private Sector Banking",
-            "current_price": 1740.50,
-            "change_amount": 12.40,
-            "change_percent": 0.72,
+            "current_price": 722.70,
+            "change_amount": 5.40,
+            "change_percent": 0.75,
             "currency": "INR",
-            "market_cap_cr": 1325000.0,
+            "market_cap_cr": 550000.0,
             "pe_ratio": 14.4,
             "pb_ratio": 2.4,
             "ev_ebitda": 11.8,
             "dividend_yield": 1.15,
-            "high_52w": 1794.00,
-            "low_52w": 1363.00,
+            "high_52w": 994.00,
+            "low_52w": 663.00,
             "last_updated": "2026-09-28 Live Market Feed",
             "business_summary": "HDFC Bank Limited is India's premier private sector banking institution, offering comprehensive commercial, retail, investment banking, and treasury solutions post its mega-merger with HDFC Limited.",
             "key_products": ["Retail Deposits & Loans", "Corporate Credit", "Credit Cards", "Wealth Management & Mortgages"],
@@ -166,17 +166,17 @@ class StockDataService:
             "name": "ICICI Bank Limited",
             "sector": "Financial Services",
             "industry": "Private Sector Banking",
-            "current_price": 1240.20,
+            "current_price": 1292.20,
             "change_amount": 15.60,
-            "change_percent": 1.27,
+            "change_percent": 1.22,
             "currency": "INR",
-            "market_cap_cr": 872500.0,
+            "market_cap_cr": 910000.0,
             "pe_ratio": 18.2,
             "pb_ratio": 3.1,
             "ev_ebitda": 12.8,
             "dividend_yield": 0.85,
-            "high_52w": 1265.00,
-            "low_52w": 912.00,
+            "high_52w": 1365.00,
+            "low_52w": 982.00,
             "last_updated": "2026-09-28 Live Market Feed",
             "business_summary": "ICICI Bank Limited is a leading private sector bank in India offering a wide range of banking products and financial services to corporate and retail customers.",
             "key_products": ["iMobile Pay App", "Retail & SME Loans", "Corporate Banking", "Treasury"],
@@ -203,17 +203,17 @@ class StockDataService:
             "name": "Bharti Airtel Limited",
             "sector": "Telecommunications",
             "industry": "Telecom Services & Tower Infrastructure",
-            "current_price": 1565.00,
+            "current_price": 1650.00,
             "change_amount": 18.20,
-            "change_percent": 1.18,
+            "change_percent": 1.11,
             "currency": "INR",
-            "market_cap_cr": 925000.0,
+            "market_cap_cr": 980000.0,
             "pe_ratio": 45.0,
             "pb_ratio": 8.5,
             "ev_ebitda": 11.2,
             "dividend_yield": 0.55,
-            "high_52w": 1620.00,
-            "low_52w": 915.00,
+            "high_52w": 1720.00,
+            "low_52w": 1015.00,
             "last_updated": "2026-09-28 Live Market Feed",
             "business_summary": "Bharti Airtel Limited is a leading global telecommunications company operating across 17 countries in Asia and Africa, providing 4G/5G mobile, home broadband, DTH, and enterprise connectivity solutions.",
             "key_products": ["5G Mobile Broadband", "Airtel Xstream Fiber", "Airtel Business Enterprise", "Africa Mobile Money"],
@@ -792,21 +792,36 @@ class StockDataService:
                 return 30
             return 0
 
-        # 2. Local STOCKS_DB search (Instant score evaluation)
+        # 2. Local STOCKS_DB search (Instant score evaluation with live price resolution)
         for ticker, data in cls.STOCKS_DB.items():
             name = data['name']
             sector = data['sector']
             score = compute_score(ticker, name, sector)
             if score > 0:
+                live_price = data['current_price']
+                mcap_cr = data['market_cap_cr']
+                
+                # Check live quote cache or query live market quote to ensure search bar matches Overview page price
+                if ticker in cls._LIVE_QUOTE_CACHE:
+                    cached_time, live_data = cls._LIVE_QUOTE_CACHE[ticker]
+                    if datetime.now() - cached_time < timedelta(minutes=10):
+                        live_price = live_data['current_price']
+                        mcap_cr = live_data['market_cap_cr']
+                else:
+                    live_data = cls._fetch_live_market_data(ticker)
+                    if live_data and live_data.get('current_price', 0) > 0:
+                        live_price = live_data['current_price']
+                        mcap_cr = live_data['market_cap_cr']
+
                 res_item = {
                     "ticker": ticker,
                     "bse_code": data.get('bse_code'),
                     "exchange": data.get('exchange', 'NSE' if data.get('currency') != 'USD' else 'NYSE'),
                     "name": name,
                     "sector": sector,
-                    "current_price": data['current_price'],
+                    "current_price": live_price,
                     "currency": data.get('currency', 'INR'),
-                    "market_cap_cr": data['market_cap_cr']
+                    "market_cap_cr": mcap_cr
                 }
                 scored_results.append((score, res_item))
                 seen_tickers.add(ticker)
@@ -818,7 +833,8 @@ class StockDataService:
                 quotes = search_obj.quotes or []
                 for item in quotes[:8]:
                     raw_symbol = item.get('symbol', '').upper()
-                    if not raw_symbol:
+                    quote_type = (item.get('quoteType') or '').upper()
+                    if not raw_symbol or (quote_type and quote_type not in ['EQUITY', 'ETF', 'INDEX', 'MUTUALFUND']):
                         continue
 
                     clean_ticker = raw_symbol.split('.')[0]
