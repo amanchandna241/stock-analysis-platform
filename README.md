@@ -69,6 +69,13 @@ Identifies earnings quality risks and capital intensity warning signals:
 ### 12. 🤖 Evidence-Based AI Investment Thesis
 - Directly addresses the **14 Core Equity Research Questions** (business model, financial health, management quality, cash flow quality, capital efficiency, scenario modeling, thesis invalidation factors).
 
+### 13. 🔮 ML Ensemble Price Target Forecasting & Volatility Regimes (`/ml/forecast/{ticker}`)
+- **Multi-Horizon Price Predictions**: 30-day, 90-day, and 180-day ensemble forecasting combining Geometric Brownian Motion (GBM) Monte Carlo simulation, dampened polynomial drift regression, and exponential trend smoothing.
+- **Monte Carlo Risk Bands**: 1,000 simulated price trajectories with 80% and 95% confidence interval channels and explicit Bear (10%), Base (50%), and Bull (90%) target price outcomes.
+- **Volatility Regime Classification**: Automatic clustering into risk regimes (`Low Volatility / Steady Consolidation`, `Mean-Reverting Range-Bound`, `High Volatility / Breakout Risk`, `Extreme Drawdown Hazard`).
+- **Parkinson Intraday Volatility Engine**: Calculates Parkinson High/Low volatility, Close-to-Close volatility, and Parkinson variance ratio.
+- *See [`docs/ML_FORECASTING.md`](docs/ML_FORECASTING.md) for complete mathematical specifications, formulas, and JSON API payloads.*
+
 ---
 
 ## 🛠️ Technology Stack
@@ -83,7 +90,7 @@ Identifies earnings quality risks and capital intensity warning signals:
 - **Framework**: Python 3.10 + FastAPI
 - **Market & Mutual Fund Data Feeds**: `mfapi.in` (Open AMFI API), `yfinance`, `beautifulsoup4`, `lxml`
 - **Validation**: Pydantic v2
-- **Data Engines**: Pandas & NumPy
+- **Data & ML Engines**: Pandas, NumPy, SciPy, Scikit-Learn
 - **Database ORM**: SQLAlchemy & SQLite/PostgreSQL
 
 ### **AI Layer**
@@ -110,6 +117,7 @@ Identifies earnings quality risks and capital intensity warning signals:
 | `/api/v1/stocks/{ticker}` | `GET` | Financial statement overview & key metrics (USD / INR context) |
 | `/api/v1/valuation/{ticker}` | `GET` | Relative valuation & DCF model with sensitivity matrix |
 | `/api/v1/technicals/{ticker}` | `GET` | Technical indicators & NIFTY benchmark overlay |
+| `/api/v1/ml/forecast/{ticker}` | `GET` | ML ensemble price target forecasts, Monte Carlo paths, confidence channels, & volatility regimes |
 | `/api/v1/rag/query` | `POST` | Queries filings vector DB for RAG answers with citations |
 | `/api/v1/thesis/{ticker}` | `GET` | 14-question AI investment thesis & scenario models |
 

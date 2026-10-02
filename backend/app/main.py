@@ -4,7 +4,7 @@ from app.config import settings
 from app.api import (
     dashboard, stocks, financials, profitability_growth,
     valuation, peers, technicals, governance, earnings, rag, news, thesis, mutual_funds,
-    recommendation, compare
+    recommendation, compare, ml_forecast
 )
 
 app = FastAPI(
@@ -38,6 +38,7 @@ app.include_router(thesis.router, prefix=settings.API_V1_STR)
 app.include_router(mutual_funds.router, prefix=settings.API_V1_STR)
 app.include_router(recommendation.router, prefix=settings.API_V1_STR)
 app.include_router(compare.router, prefix=settings.API_V1_STR)
+app.include_router(ml_forecast.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():

@@ -20,10 +20,11 @@ import EarningsAnalysisTab from '@/components/stock/EarningsAnalysisTab';
 import DocumentRAGTab from '@/components/stock/DocumentRAGTab';
 import NewsIntelligenceTab from '@/components/stock/NewsIntelligenceTab';
 import AIThesisTab from '@/components/stock/AIThesisTab';
+import MLForecastTab from '@/components/stock/MLForecastTab';
 
 import {
   FileText, TrendingUp, DollarSign, Calculator, Layers, Activity,
-  Users, ShieldCheck, Sparkles, BookOpen, Newspaper, LineChart as ChartIcon
+  Users, ShieldCheck, Sparkles, BookOpen, Newspaper, LineChart as ChartIcon, Cpu
 } from 'lucide-react';
 
 export default function StockResearchPage() {
@@ -107,6 +108,7 @@ export default function StockResearchPage() {
 
   const tabs = [
     { id: 'thesis', label: 'AI Investment Thesis', icon: Sparkles },
+    { id: 'ml-forecast', label: 'ML Price Forecast', icon: Cpu },
     { id: 'technicals', label: 'Price Chart & Technicals', icon: ChartIcon },
     { id: 'income', label: 'Income Statement (10Y)', icon: FileText },
     { id: 'balance', label: 'Balance Sheet (10Y)', icon: DollarSign },
@@ -157,6 +159,7 @@ export default function StockResearchPage() {
       {/* Active Tab Content */}
       <div className="pt-2">
         {activeTab === 'thesis' && thesisData && <AIThesisTab data={thesisData} />}
+        {activeTab === 'ml-forecast' && <MLForecastTab ticker={ticker} />}
         {activeTab === 'income' && incomeData && <IncomeStatementTab data={incomeData} />}
         {activeTab === 'balance' && balanceData && <BalanceSheetTab data={balanceData} />}
         {activeTab === 'cashflow' && cashFlowData && <CashFlowTab data={cashFlowData} />}
