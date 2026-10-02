@@ -283,9 +283,17 @@ export default function AdvisorPage() {
             </div>
           </div>
 
-          {/* Disclaimer */}
-          <div className="p-4 bg-[#0E131F] border border-[#1E2638] rounded-xl text-[11px] text-gray-500">
-            {recommendation.disclaimer}
+          {/* Regulatory Disclaimer Box */}
+          <div className="p-5 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-xs text-amber-300 flex items-start gap-3 shadow-lg">
+            <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <span className="font-bold text-amber-400 uppercase tracking-wider text-[11px]">
+                Statutory Regulatory & Educational Disclaimer (SEBI / RBI Compliance Norms)
+              </span>
+              <p className="text-gray-300 leading-relaxed text-[11px]">
+                {recommendation.disclaimer}
+              </p>
+            </div>
           </div>
         </div>
       )}
