@@ -1,4 +1,4 @@
-# 📈 Antigravity AI Stock Research & Analysis Platform
+# 📈 Alphiq — AI Stock Research & Analytics Platform
 
 A production-quality equity research and financial analysis platform focused on **Indian Equities (NSE/BSE)**, **Indian Mutual Funds (AMFI)**, and **US & International Markets**.
 

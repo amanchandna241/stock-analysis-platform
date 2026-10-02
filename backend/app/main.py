@@ -43,7 +43,7 @@ app.include_router(advisor.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():
-    return {"message": "Apex Equity Research API is running", "docs": "/docs"}
+    return {"message": "Alphiq AI Equity Research API is running", "docs": "/docs"}
 
 @app.get("/health")
 def health():

@@ -6,7 +6,7 @@ def test_root_endpoint(client):
     assert response.status_code == 200
     json_data = response.json()
     assert "message" in json_data
-    assert "Apex Equity Research" in json_data["message"]
+    assert "Alphiq" in json_data["message"]
 
 def test_health_endpoint(client):
     response = client.get("/health")

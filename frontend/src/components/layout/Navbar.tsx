@@ -114,9 +114,9 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 text-xl font-bold text-white tracking-tight shrink-0">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-black shadow-lg shadow-blue-500/20 text-lg">
-              AX
+              AQ
             </div>
-            <span className="hidden sm:inline text-xl font-black">Apex<span className="text-blue-500 font-normal">Equity</span></span>
+            <span className="hidden sm:inline text-xl font-black">Alph<span className="text-blue-500 font-normal">iq</span></span>
           </Link>
 
           {/* SLEEK, COMPACT SEARCH TRIGGER BAR */}

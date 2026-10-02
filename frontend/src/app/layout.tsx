@@ -2,7 +2,7 @@ import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 
 export const metadata = {
-  title: 'Apex Equity Research | Production AI Stock & Mutual Funds Platform',
+  title: 'Alphiq | GenAI Stock Research & Mutual Funds Analytics Platform',
   description: 'Professional equity research and mutual fund analytics platform focusing on Indian Equities (NSE/BSE), Indian Mutual Funds (AMFI), and US Markets.',
 };
 
@@ -19,7 +19,7 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="border-t border-[#1E2638] bg-[#0B0E14] py-6 text-center text-xs text-gray-500">
-          <p>© 2026 Apex Equity Research Engine. Grounded Financial Intelligence for NSE/BSE, AMFI & Global Markets.</p>
+          <p>© 2026 Alphiq AI Research Engine. Grounded Financial Intelligence for NSE/BSE, AMFI & Global Markets.</p>
         </footer>
       </body>
     </html>
