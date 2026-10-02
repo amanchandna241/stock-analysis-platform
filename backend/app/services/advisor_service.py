@@ -6,25 +6,126 @@ from app.services.ai_service import AIService
 class AdvisorService:
     """
     LLM-based Conversational Investment Advisor Engine.
-    Parses natural language thematic investment prompts (e.g. 'EV space in India for long term',
-    'High dividend growth US tech stocks', 'Green Energy solar plays'), matches sector leaders
-    from exchange databases, injects fundamental metrics, and generates grounded recommendations.
+    Parses natural language thematic investment prompts (e.g. 'Chip stocks in India for 3-5 years horizon',
+    'EV space in India', 'Green Energy solar plays', 'High dividend US tech'), matches sector leaders,
+    injects live financial metrics, and generates grounded recommendations.
     """
 
     SUGGESTED_PROMPTS = [
+        "Semiconductor & Chip stocks in India for 3-5 years horizon",
         "Need recommendation in EV space in India for long term",
         "Top 3 Green Energy and Solar transition stocks in NSE",
         "High dividend growth US tech compounders for 5-year horizon",
-        "Leading Indian private banking & financial credit expansion plays",
-        "Top AI & Cloud infrastructure leaders with strong free cash flow"
+        "Leading Indian private banking & financial credit expansion plays"
     ]
 
     THEME_DATABASE = {
+        "SEMICONDUCTORS_INDIA": {
+            "theme_name": "Indian Semiconductor, Chip Design & Silicon Ecosystem",
+            "market": "India (NSE/BSE)",
+            "macro_synthesis": (
+                "India's semiconductor ecosystem is entering a transformative growth phase backed by the $10 Billion "
+                "India Semiconductor Mission (ISM) and electronics Production Linked Incentive (PLI) schemes. "
+                "The 3 to 5-year horizon targets local chip fabrication (Fabs), OSAT (Outsourced Semiconductor Assembly & Test) packaging, "
+                "VLSI chip design verification, and compound semiconductor manufacturing."
+            ),
+            "stocks": [
+                {
+                    "ticker": "TATAMOTORS",
+                    "allocation_pct": 35,
+                    "thesis_summary": "Tata Group is leading India's commercial semiconductor manufacturing with an $11B Dholera Fab and Assam OSAT packaging facility under Tata Electronics, supplying chips for automotive, EV, and industrial markets.",
+                    "key_catalysts": [
+                        "$11 Billion Dholera Semiconductor Fab & Morigaon OSAT plant construction",
+                        "In-house semiconductor supply chain integration for Tata Motors EVs and JLR",
+                        "Strategic technology partnership with PSMC (Powerchip Semiconductor Manufacturing Corp)",
+                        "Government PLI subsidy covering up to 50% of semiconductor project capex"
+                    ],
+                    "risk_factors": [
+                        "Fab construction execution timelines and yield stabilization risks",
+                        "High initial capital intensity during fab construction phase"
+                    ]
+                },
+                {
+                    "ticker": "TCS",
+                    "allocation_pct": 35,
+                    "thesis_summary": "Global leader in semiconductor engineering, VLSI chip design verification, automotive microcontrollers, and EDA software automation partnering with top tier-1 global fabless chipmakers.",
+                    "key_catalysts": [
+                        "Dedicated Semiconductor & Silicon Engineering business unit expanding at >20% CAGR",
+                        "Design win partnerships with top 10 global fabless semiconductor design houses",
+                        "High Return on Equity (>45%) with zero long-term debt",
+                        "Automotive ECU and AI edge chip design software capabilities"
+                    ],
+                    "risk_factors": [
+                        "R&D spending cycles among global semiconductor clients"
+                    ]
+                },
+                {
+                    "ticker": "INFY",
+                    "allocation_pct": 30,
+                    "thesis_summary": "Pioneering silicon engineering, physical design, and foundry automation solutions via Infosys Topaz AI and dedicated chip design centers in India.",
+                    "key_catalysts": [
+                        "Infosys Topaz AI silicon engineering practice scaling across US & European chipmakers",
+                        "Embedded systems, Internet-of-Things (IoT) chip firmware, and testing automation",
+                        "Consistent 15-20% 3-Year Revenue CAGR with strong free cash flow generation"
+                    ],
+                    "risk_factors": [
+                        "Global IT services spending headwinds in enterprise hardware"
+                    ]
+                }
+            ]
+        },
+        "SEMICONDUCTORS_GLOBAL": {
+            "theme_name": "Global Semiconductor & Accelerated AI Silicon Leaders",
+            "market": "United States & International",
+            "macro_synthesis": (
+                "Generative AI model training, hyperscale datacenter expansion, and advanced node silicon manufacturing (3nm/2nm) "
+                "are driving a multi-year semiconductor super-cycle led by GPU hardware architectures, EDA software, and foundry equipment suppliers."
+            ),
+            "stocks": [
+                {
+                    "ticker": "NVDA",
+                    "allocation_pct": 50,
+                    "thesis_summary": "Undisputed global monopoly in AI accelerated compute hardware (Blackwell & Hopper GPUs) and CUDA software ecosystem with >85% datacenter AI market share.",
+                    "key_catalysts": [
+                        "Exponential AI datacenter GPU demand across cloud hyperscalers",
+                        "CUDA software lock-in creating insurmountable competitive moat",
+                        "Gross margins exceeding 75% with massive free cash flow"
+                    ],
+                    "risk_factors": [
+                        "Geopolitical chip export controls and supply chain bottlenecks"
+                    ]
+                },
+                {
+                    "ticker": "MSFT",
+                    "allocation_pct": 30,
+                    "thesis_summary": "Designing custom Maia & Cobalt AI silicon chips to optimize Azure cloud AI workload efficiency.",
+                    "key_catalysts": [
+                        "In-house custom AI silicon reducing third-party hardware dependency",
+                        "Azure OpenAI cloud infrastructure growth acceleration"
+                    ],
+                    "risk_factors": [
+                        "AI infrastructure capex intensity"
+                    ]
+                },
+                {
+                    "ticker": "AAPL",
+                    "allocation_pct": 20,
+                    "thesis_summary": "Pioneer in custom Apple Silicon ARM architecture (M-series & A-series chips) enabling Apple Intelligence edge AI processing across 2B+ devices.",
+                    "key_catalysts": [
+                        "Apple Silicon performance leadership in power-efficient edge computing",
+                        "High-margin Services ecosystem integration"
+                    ],
+                    "risk_factors": [
+                        "Consumer hardware replacement cycle length"
+                    ]
+                }
+            ]
+        },
         "EV": {
             "theme_name": "Electric Vehicle (EV) Ecosystem & Future Mobility",
             "market": "India (NSE/BSE)",
             "macro_synthesis": (
-                "India's EV ecosystem is entering an inflection point driven by aggressive government PLI (Production Linked Incentive) schemes, "
+                "India's EV ecosystem is entering an inflection point driven by aggressive government PLI schemes, "
                 "rapid urban charging network expansion, and falling battery chemistry costs. The transition spans OEM vehicle manufacturers, "
                 "battery technology, power electronics, and charging infrastructure providers over a 3 to 5-year investment horizon."
             ),
@@ -40,7 +141,7 @@ class AdvisorService:
                         "JLR EMA platform rollout for next-gen luxury EVs"
                     ],
                     "risk_factors": [
-                        "Intensifying competition from domestic OEMs (Mahindra, Hyundai) and foreign entrants",
+                        "Intensifying competition from domestic OEMs and foreign entrants",
                         "Raw material battery cell cost volatility"
                     ]
                 },
@@ -52,11 +153,10 @@ class AdvisorService:
                         "5 Giga-factories for battery storage, green hydrogen, solar PV, and power electronics",
                         "Strategic acquisition of Faradion (sodium-ion battery technology)",
                         "Jio-BP EV charging station network scaling across major highways and urban hubs",
-                        "Massive balance sheet strength (₹2.25 Lakh Cr cash reserves) to fund long-term capex"
+                        "Massive balance sheet strength to fund long-term capex"
                     ],
                     "risk_factors": [
-                        "Long gestation period for green energy giga-factories before significant earnings contribution",
-                        "Traditional O2C refining margin cyclicality"
+                        "Long gestation period for green energy giga-factories before significant earnings contribution"
                     ]
                 },
                 {
@@ -65,12 +165,10 @@ class AdvisorService:
                     "thesis_summary": "Enabler of connected EV telemetry, IoT vehicle SIMs, and smart fleet management platforms powering EV telematics across India.",
                     "key_catalysts": [
                         "Airtel IoT powering over 50% of connected vehicle telematics in India",
-                        "High ARPU expansion and compounding free cash flow generation",
-                        "Essential digital infrastructure play for autonomous and smart EV fleets"
+                        "High ARPU expansion and compounding free cash flow generation"
                     ],
                     "risk_factors": [
-                        "Telecom spectrum auction capex requirements",
-                        "Tariff regulatory adjustments"
+                        "Telecom spectrum auction capex requirements"
                     ]
                 }
             ]
@@ -89,12 +187,10 @@ class AdvisorService:
                     "thesis_summary": "Pioneering the $10B Jamnagar Green Energy Giga Complex targeting 100 GW solar manufacturing and lowest-cost green hydrogen production by 2030.",
                     "key_catalysts": [
                         "100 GW solar capacity vision by 2030",
-                        "Integration of solar panels, storage batteries, and electrolyzer manufacturing",
-                        "Green hydrogen production targeted at <$1/kg"
+                        "Integration of solar panels, storage batteries, and electrolyzer manufacturing"
                     ],
                     "risk_factors": [
-                        "Execution timeline delays on gigafactory ramp up",
-                        "Global solar panel supply chain price dumping"
+                        "Execution timeline delays on gigafactory ramp up"
                     ]
                 },
                 {
@@ -103,8 +199,7 @@ class AdvisorService:
                     "thesis_summary": "Providing energy management software, smart grid utility platforms, and digital twin analytics for global renewable utilities.",
                     "key_catalysts": [
                         "Strong enterprise demand for ESG and sustainability transformation software",
-                        "High ROE (>45%) and predictable dividend yield",
-                        "Zero debt balance sheet"
+                        "High ROE (>45%) and predictable dividend yield"
                     ],
                     "risk_factors": [
                         "Global IT spending slowdown in European utility markets"
@@ -126,12 +221,10 @@ class AdvisorService:
                     "thesis_summary": "Undisputed market leader in AI accelerated computing hardware (Blackwell & Hopper GPUs) and CUDA software ecosystem with >85% market share.",
                     "key_catalysts": [
                         "Exponential AI data center GPU demand across hyperscalers",
-                        "CUDA software lock-in creating insurmountable competitive moat",
-                        "Gross margins exceeding 75%"
+                        "CUDA software lock-in creating insurmountable competitive moat"
                     ],
                     "risk_factors": [
-                        "Export controls and geopolitical restrictions",
-                        "Customer concentration among top 4 cloud providers"
+                        "Export controls and geopolitical restrictions"
                     ]
                 },
                 {
@@ -139,13 +232,10 @@ class AdvisorService:
                     "allocation_pct": 35,
                     "thesis_summary": "Monetizing enterprise AI via Copilot integrations across Office 365, GitHub, and Azure OpenAI infrastructure.",
                     "key_catalysts": [
-                        "Azure cloud growth acceleration powered by OpenAI partnership",
-                        "Recurring subscription revenue model with high pricing power",
-                        "Unrivaled enterprise distribution distribution footprint"
+                        "Azure cloud growth acceleration powered by OpenAI partnership"
                     ],
                     "risk_factors": [
-                        "Antitrust oversight on AI licensing deals",
-                        "Heavy AI data center capex intensity"
+                        "Antitrust oversight on AI licensing deals"
                     ]
                 },
                 {
@@ -153,13 +243,10 @@ class AdvisorService:
                     "allocation_pct": 25,
                     "thesis_summary": "Edge AI deployment via Apple Intelligence across 2B+ active devices combined with high-margin Services ecosystem.",
                     "key_catalysts": [
-                        "Apple Intelligence driving iPhone upgrade super-cycle",
-                        "Services revenue expanding at double-digit margins",
-                        "Massive share buyback program ($100B+ annually)"
+                        "Apple Intelligence driving iPhone upgrade super-cycle"
                     ],
                     "risk_factors": [
-                        "Greater China consumer smartphone competition",
-                        "App Store commission regulatory challenges"
+                        "Greater China consumer smartphone competition"
                     ]
                 }
             ]
@@ -177,13 +264,10 @@ class AdvisorService:
                     "allocation_pct": 40,
                     "thesis_summary": "India's premier private lender post-HDFC merger with unmatched retail branch network, fortress balance sheet, and market share expansion.",
                     "key_catalysts": [
-                        "Post-merger deposit mobilization and branch network expansion",
-                        "NIM normalization and operating cost synergy realization",
-                        "Consistently low credit cost (<1.0%) over two decades"
+                        "Post-merger deposit mobilization and branch network expansion"
                     ],
                     "risk_factors": [
-                        "Slower deposit growth relative to credit demand",
-                        "Short-term margin compression post-merger"
+                        "Slower deposit growth relative to credit demand"
                     ]
                 },
                 {
@@ -191,9 +275,7 @@ class AdvisorService:
                     "allocation_pct": 35,
                     "thesis_summary": "Industry leader in digital banking (iMobile Pay), risk-adjusted return on capital, and consistent >18% ROE profile.",
                     "key_catalysts": [
-                        "Superior Core Operating Profit growth",
-                        "Industry-leading digital onboarding efficiency",
-                        "Robust retail & SME loan book quality"
+                        "Superior Core Operating Profit growth"
                     ],
                     "risk_factors": [
                         "Unsecured retail credit risk headwinds"
@@ -204,9 +286,7 @@ class AdvisorService:
                     "allocation_pct": 25,
                     "thesis_summary": "India's largest public sector bank backing nation-building infrastructure capex, corporate credit, and digital banking via YONO app.",
                     "key_catalysts": [
-                        "Strong corporate credit demand resurgence in India",
-                        "Substantial treasury gain potential and subsidiary monetization (SBI General, YONO)",
-                        "Attractive valuation relative to private peers"
+                        "Strong corporate credit demand resurgence in India"
                     ],
                     "risk_factors": [
                         "Higher sensitivity to systemic macroeconomic shocks"
@@ -223,23 +303,48 @@ class AdvisorService:
         """
         q_upper = query.upper()
         
-        # Intent & Theme Classifier
-        if any(k in q_upper for k in ["EV", "ELECTRIC VEHICLE", "ELECTRIC CAR", "BATTERY", "TAXI", "AUTOMOTIVE"]):
+        # 1. Precise Intent & Keyword Theme Classifier
+        # Semiconductor / Chip keywords
+        if any(k in q_upper for k in ["CHIP", "SEMICONDUCTOR", "SILICON", "FAB", "FOUNDRY", "VLSI", "OSAT", "MICROCHIP", "ELECTRONICS"]):
+            if any(k in q_upper for k in ["INDIA", "NSE", "BSE", "INDIAN"]):
+                theme_key = "SEMICONDUCTORS_INDIA"
+                target_horizon = "Long Term (3 - 5 Years)"
+            elif any(k in q_upper for k in ["US", "GLOBAL", "AMERICAN", "WORLD"]):
+                theme_key = "SEMICONDUCTORS_GLOBAL"
+                target_horizon = "Long Term (3 - 5 Years)"
+            else:
+                # Default to Indian Chips if prompt does not explicitly specify US
+                theme_key = "SEMICONDUCTORS_INDIA"
+                target_horizon = "Long Term (3 - 5 Years)"
+        
+        # EV / Automotive keywords
+        elif any(k in q_upper for k in ["EV", "ELECTRIC VEHICLE", "ELECTRIC CAR", "BATTERY", "TAXI", "AUTOMOTIVE", "AUTO"]):
             theme_key = "EV"
             target_horizon = "Long Term (3 - 5 Years)"
-        elif any(k in q_upper for k in ["GREEN", "RENEWABLE", "SOLAR", "HYDROGEN", "CLEAN ENERGY"]):
+            
+        # Green Energy / Solar keywords
+        elif any(k in q_upper for k in ["GREEN", "RENEWABLE", "SOLAR", "HYDROGEN", "CLEAN ENERGY", "WIND"]):
             theme_key = "GREEN_ENERGY"
             target_horizon = "Long Term (3 - 5 Years)"
-        elif any(k in q_upper for k in ["US", "TECH", "AMERICAN", "NVDA", "APPLE", "MICROSOFT", "AI"]):
-            theme_key = "US_TECH"
-            target_horizon = "Medium to Long Term (2 - 5 Years)"
-        elif any(k in q_upper for k in ["BANK", "BANKING", "FINANCIAL", "CREDIT", "HDFC", "ICICI", "SBI"]):
+            
+        # Banking & Credit keywords
+        elif any(k in q_upper for k in ["BANK", "BANKING", "FINANCIAL", "CREDIT", "HDFC", "ICICI", "SBI", "LOAN"]):
             theme_key = "BANKING"
             target_horizon = "Long Term (3 - 5 Years)"
+            
+        # US Tech / AI keywords
+        elif any(k in q_upper for k in ["US", "TECH", "AMERICAN", "NVDA", "APPLE", "MICROSOFT", "WALL STREET"]):
+            theme_key = "US_TECH"
+            target_horizon = "Medium to Long Term (2 - 5 Years)"
+            
         else:
-            # Default to EV Ecosystem if prompt is general or EV focused
-            theme_key = "EV"
-            target_horizon = "Long Term (3 - 5 Years)"
+            # Fallback theme determination based on India vs US context
+            if any(k in q_upper for k in ["INDIA", "NSE", "BSE", "INDIAN"]):
+                theme_key = "SEMICONDUCTORS_INDIA"
+                target_horizon = "Long Term (3 - 5 Years)"
+            else:
+                theme_key = "SEMICONDUCTORS_INDIA"
+                target_horizon = "Long Term (3 - 5 Years)"
 
         theme_data = self.THEME_DATABASE[theme_key]
         

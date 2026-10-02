@@ -33,3 +33,13 @@ def test_advisor_recommendation_us_tech_query():
     assert response.status_code == 200
     data = response.json()
     assert "NVDA" in [s["ticker"] for s in data["recommended_stocks"]]
+
+def test_advisor_recommendation_chip_query():
+    payload = {"query": "chip stocks in india for 3-5 years horizon"}
+    response = client.post("/api/v1/advisor/recommend", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "Semiconductor" in data["theme_name"] or "Chip" in data["theme_name"]
+    tickers = [s["ticker"] for s in data["recommended_stocks"]]
+    assert "TATAMOTORS" in tickers or "TCS" in tickers or "INFY" in tickers
+
