@@ -111,8 +111,11 @@ export default function MLForecastTab({ ticker }: MLForecastTabProps) {
       {/* Header & Forecast Horizon Controls */}
       <div className="bg-[#0E131F] border border-[#1E2638] rounded-2xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
             <Cpu className="w-5 h-5 text-blue-400" />
+            <span className="px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-blue-600/20 text-blue-400 border border-blue-500/30">
+              {ticker}
+            </span>
             <h2 className="text-lg font-bold text-white">ML Ensemble Price Forecasting & Volatility Regimes</h2>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">
               AI Quantitative Engine

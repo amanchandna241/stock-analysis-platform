@@ -644,17 +644,24 @@ class StockDataService:
         num_days = 1250 if period == "5y" else 252
         np.random.seed(abs(hash(ticker_clean)) % 10000)
         dates = [(datetime.now() - timedelta(days=num_days - i)).strftime("%Y-%m-%d") for i in range(num_days)]
-        returns = np.random.normal(0.0003, 0.012, num_days)
-        price_series = [curr_px * 0.70]
-        for r in returns[1:]:
-            price_series.append(price_series[-1] * (1.0 + r))
+        
+        # Smooth geometric trend anchor from 65% of spot price to 100% spot price
+        start_ratio = 0.65
+        t_steps = np.linspace(0, 1, num_days)
+        base_trend = curr_px * (start_ratio ** (1.0 - t_steps))
+        
+        # Add mean-reverting daily noise with smooth zero-error termination at current price
+        noise = np.random.normal(0, 0.008, num_days)
+        noise[-1] = 0.0
+        
+        price_series = [round(float(base_trend[i] * (1.0 + noise[i])), 2) for i in range(num_days)]
         price_series[-1] = curr_px
 
         df_fallback = pd.DataFrame({
             "date": dates,
-            "open": [p * 0.998 for p in price_series],
-            "high": [p * 1.008 for p in price_series],
-            "low": [p * 0.992 for p in price_series],
+            "open": [round(p * 0.998, 2) for p in price_series],
+            "high": [round(p * 1.008, 2) for p in price_series],
+            "low": [round(p * 0.992, 2) for p in price_series],
             "close": price_series,
             "volume": [int(np.random.uniform(1000000, 5000000)) for _ in price_series]
         })

@@ -77,11 +77,16 @@ export default function StockHeader({ overview, chartData }: StockHeaderProps) {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#1E2638]">
         {/* Left Section: Company Info */}
         <div>
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
             <span className="text-3xl font-black text-white tracking-tight">{overview.ticker}</span>
-            <span className="text-xs bg-[#1E2638] text-gray-300 px-2.5 py-1 rounded font-mono">
-              {overview.bse_code ? `BSE: ${overview.bse_code}` : `${overview.exchange || 'NYSE'}: ${overview.ticker}`}
+            <span className="text-xs bg-blue-600/20 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-lg font-mono font-bold">
+              NSE: {overview.ticker}
             </span>
+            {overview.bse_code && (
+              <span className="text-xs bg-[#1E2638] text-gray-300 px-2.5 py-1 rounded-lg font-mono">
+                BSE: {overview.bse_code}
+              </span>
+            )}
             <span className="text-xs bg-blue-950/60 text-blue-400 border border-blue-800/50 px-2.5 py-0.5 rounded-full font-medium flex items-center gap-1">
               <Building2 className="w-3 h-3" /> {overview.sector}
             </span>
@@ -139,7 +144,10 @@ export default function StockHeader({ overview, chartData }: StockHeaderProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
             <ChartIcon className="w-4 h-4 text-blue-400" />
-            <h3 className="text-sm font-bold text-white">Interactive Price Chart & Trajectory</h3>
+            <h3 className="text-sm font-bold text-white">
+              <span className="text-blue-400 mr-1.5 font-mono">[{overview.ticker}]</span>
+              Interactive Price Chart & Trajectory
+            </h3>
             <span className="text-[11px] text-gray-400 font-mono">({timeframe})</span>
           </div>
 
