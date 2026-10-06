@@ -76,6 +76,11 @@ Identifies earnings quality risks and capital intensity warning signals:
 - **Parkinson Intraday Volatility Engine**: Calculates Parkinson High/Low volatility, Close-to-Close volatility, and Parkinson variance ratio.
 - *See [`docs/ML_FORECASTING.md`](docs/ML_FORECASTING.md) for complete mathematical specifications, formulas, and JSON API payloads.*
 
+### 14. 📱 Native Android Mobile Application (`/frontend/android`)
+- **Native Android App Package**: Integrated Capacitor Android wrapper for compiling native `.apk` / `.aab` packages with 100% code reuse.
+- **Push Notifications & Native Share**: Configured for stock price alerts and mobile sharing.
+- *See [`docs/ANDROID_APP.md`](docs/ANDROID_APP.md) for step-by-step Android build & installation guide.*
+
 ---
 
 ## 🛠️ Technology Stack

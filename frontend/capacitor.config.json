@@ -1,0 +1,9 @@
+{
+  "appId": "com.alphiq.stockresearch",
+  "appName": "Alphiq",
+  "webDir": "out",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  }
+}
