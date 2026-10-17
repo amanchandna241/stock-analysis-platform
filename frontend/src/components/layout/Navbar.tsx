@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { fetchApi } from '@/lib/api';
-import { Search, TrendingUp, X, LayoutDashboard, Layers, FileText, Cpu, ArrowRight, Sparkles, GitCompareArrows } from 'lucide-react';
+import { Search, TrendingUp, X, LayoutDashboard, Layers, FileText, Cpu, ArrowRight, Sparkles, GitCompareArrows, Users } from 'lucide-react';
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -146,6 +146,10 @@ export default function Navbar() {
             <Link href="/advisor" className="px-3 py-2 rounded-xl text-sm font-semibold text-blue-400 hover:text-blue-300 bg-blue-950/40 border border-blue-800/50 flex items-center gap-1.5 transition-colors">
               <Sparkles className="w-4 h-4 text-blue-400" />
               <span className="hidden sm:inline">AI Advisor</span>
+            </Link>
+            <Link href="/agents" className="px-3 py-2 rounded-xl text-sm font-semibold text-purple-400 hover:text-purple-300 bg-purple-950/40 border border-purple-800/50 flex items-center gap-1.5 transition-colors">
+              <Users className="w-4 h-4 text-purple-400" />
+              <span className="hidden sm:inline">AI Committee</span>
             </Link>
             <Link href="/mutual-funds" className="px-3 py-2 rounded-xl text-sm font-semibold text-amber-400 hover:text-amber-300 bg-amber-950/40 border border-amber-800/50 flex items-center gap-1.5 transition-colors">
               <Sparkles className="w-4 h-4 text-amber-400" />
