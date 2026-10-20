@@ -129,6 +129,24 @@ MCP_TOOLS: List[Dict[str, Any]] = [
             },
             "required": ["ticker"]
         }
+    },
+    {
+        "name": "alphiq_rag_search",
+        "description": "Perform semantic vector RAG search across indexed Annual Reports, 10-K filings, and investor disclosures with page citations.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "ticker": {
+                    "type": "string",
+                    "description": "Stock ticker symbol (e.g., 'TATAMOTORS', 'RELIANCE', 'TCS')"
+                },
+                "query": {
+                    "type": "string",
+                    "description": "Natural language question or search query (e.g., 'What is the EV capex roadmap?')"
+                }
+            },
+            "required": ["ticker", "query"]
+        }
     }
 ]
 
@@ -193,7 +211,7 @@ async def execute_mcp_tool(name: str, arguments: Dict[str, Any]) -> Dict[str, An
 
         elif name == "alphiq_ml_forecast":
             days = int(arguments.get("days", 90))
-            forecast = ml_forecast_engine.generate_forecast(ticker, days=days)
+            forecast = ml_forecast_engine.generate_forecast(ticker, forecast_days=days)
             return forecast
 
         elif name == "alphiq_dcf_valuation":
@@ -232,8 +250,8 @@ async def execute_mcp_tool(name: str, arguments: Dict[str, Any]) -> Dict[str, An
                 "intrinsic_value_per_share": dcf_result.fair_value_per_share,
                 "upside_downside_pct": dcf_result.margin_of_safety_pct,
                 "margin_of_safety_pct": dcf_result.margin_of_safety_pct,
-                "enterprise_value": dcf_result.enterprise_value,
-                "equity_value": dcf_result.equity_value,
+                "enterprise_value": dcf_result.enterprise_value_cr,
+                "equity_value": dcf_result.equity_value_cr,
                 "wacc": wacc_in,
                 "terminal_growth": terminal_growth_in,
                 "currency": data.get("currency", "INR")
@@ -309,6 +327,12 @@ async def execute_mcp_tool(name: str, arguments: Dict[str, Any]) -> Dict[str, An
                 }
             ]
             return {"ticker": ticker, "recent_news": headlines}
+
+        elif name == "alphiq_rag_search":
+            from app.services.rag_engine import rag_engine
+            query_str = str(arguments.get("query", f"Key growth drivers and financial risk disclosures for {ticker}"))
+            rag_output = rag_engine.query(query=query_str, ticker=ticker, top_k=3)
+            return rag_output
 
         else:
             return {"error": f"Tool '{name}' is not recognized in Alphiq MCP Registry."}

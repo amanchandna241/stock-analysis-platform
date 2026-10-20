@@ -310,16 +310,20 @@ class DocumentSource(BaseModel):
     year: str
     page_number: int
     content_snippet: str
+    relevance_score: Optional[float] = None
+    section: Optional[str] = None
 
 class RAGQueryRequest(BaseModel):
     ticker: str
     query: str
+    doc_type: Optional[str] = None
 
 class RAGQueryResponse(BaseModel):
     ticker: str
     query: str
     answer: str
     citations: List[DocumentSource]
+    confidence_score: Optional[float] = None
 
 class NewsArticle(BaseModel):
     id: str

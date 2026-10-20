@@ -1,8 +1,11 @@
+import logging
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from typing import List, Optional, Dict, Any
 from app.services.stock_data_service import StockDataService
 from app.services.ai_service import AIService
 from app.schemas.stock import RAGQueryResponse, RAGQueryRequest
+
+logger = logging.getLogger("alphiq_rag_api")
 
 router = APIRouter(prefix="/rag", tags=["Document RAG Engine"])
 
@@ -110,17 +113,28 @@ def _generate_dynamic_rag_chunks(ticker: str) -> List[Dict[str, Any]]:
         }
     ]
 
+from app.services.rag_engine import rag_engine
+
 @router.post("/query", response_model=RAGQueryResponse)
 def query_documents(req: RAGQueryRequest):
+    """
+    Executes hybrid semantic search (TF-IDF vector cosine similarity + lexical matching)
+    with re-ranking across indexed financial filings and returns fact-grounded synthesis.
+    """
     ticker = req.ticker.upper().strip()
-    
-    # Check preindexed dictionary first, fallback to dynamic chunk generator for ANY stock
-    chunks = PREINDEXED_DOCS.get(ticker)
-    if not chunks:
-        chunks = _generate_dynamic_rag_chunks(ticker)
-
-    ai_service = AIService()
-    return ai_service.query_document_rag(ticker=ticker, query=req.query, document_chunks=chunks)
+    result = rag_engine.query(
+        query=req.query,
+        ticker=ticker,
+        doc_type=req.doc_type,
+        top_k=4
+    )
+    return RAGQueryResponse(
+        ticker=result["ticker"],
+        query=result["query"],
+        answer=result["answer"],
+        citations=result["citations"],
+        confidence_score=result["confidence_score"]
+    )
 
 @router.get("/{ticker}/documents")
 def get_rag_documents(ticker: str):
@@ -128,21 +142,76 @@ def get_rag_documents(ticker: str):
     Returns indexed RAG document chunks and citations for a ticker.
     """
     ticker_clean = ticker.upper().strip()
-    return PREINDEXED_DOCS.get(ticker_clean) or _generate_dynamic_rag_chunks(ticker_clean)
+    matching = [c.to_dict() for c in rag_engine.chunks if c.ticker == ticker_clean]
+    if not matching:
+        # Fallback to dynamic chunks
+        return _generate_dynamic_rag_chunks(ticker_clean)
+    return matching
+
+@router.get("/stats")
+def get_rag_stats():
+    """
+    Returns live statistics on the RAG vector store and index.
+    """
+    unique_tickers = list(set(c.ticker for c in rag_engine.chunks))
+    unique_docs = list(set(c.doc_title for c in rag_engine.chunks))
+    return {
+        "status": "ready",
+        "total_chunks": len(rag_engine.chunks),
+        "total_documents": len(unique_docs),
+        "covered_tickers": len(unique_tickers),
+        "tickers": unique_tickers,
+        "vocabulary_features": rag_engine.tfidf_matrix.shape[1] if rag_engine.tfidf_matrix is not None else 0
+    }
 
 @router.post("/upload")
-def upload_document(ticker: str = Form(...), doc_type: str = Form("Annual Report"), file: UploadFile = File(...)):
+async def upload_document(
+    ticker: str = Form(...),
+    doc_type: str = Form("Annual Report"),
+    year: str = Form("2024"),
+    file: UploadFile = File(...)
+):
     """
-    Accepts PDF/Document uploads (Annual Reports, Presentations, Transcripts) and indexes them into RAG store.
+    Accepts PDF/Text uploads (Annual Reports, 10-K filings, Earnings Transcripts),
+    extracts text page-by-page, generates sliding-window semantic chunks,
+    and updates the persistent RAG vector index.
     """
     ticker_clean = ticker.upper().strip()
-    return {
-        "status": "success",
-        "message": f"Document '{file.filename}' for {ticker_clean} uploaded and indexed successfully into RAG vector database.",
-        "ticker": ticker_clean,
-        "doc_type": doc_type,
-        "pages_processed": 142,
-        "chunks_indexed": 385
-    }
+    file_bytes = await file.read()
+
+    try:
+        if file.filename.lower().endswith(".pdf"):
+            pages_processed, chunks_indexed = rag_engine.ingest_pdf_file(
+                ticker=ticker_clean,
+                pdf_bytes=file_bytes,
+                filename=file.filename,
+                doc_type=doc_type,
+                year=year
+            )
+        else:
+            text_str = file_bytes.decode("utf-8", errors="ignore")
+            chunks_indexed = rag_engine.ingest_document(
+                ticker=ticker_clean,
+                text_content=text_str,
+                doc_title=file.filename,
+                doc_type=doc_type,
+                year=year
+            )
+            pages_processed = max(1, chunks_indexed // 3)
+
+        return {
+            "status": "success",
+            "message": f"Successfully parsed '{file.filename}', generated {chunks_indexed} vector chunks across {pages_processed} pages, and updated RAG vector store.",
+            "ticker": ticker_clean,
+            "filename": file.filename,
+            "doc_type": doc_type,
+            "year": year,
+            "pages_processed": pages_processed,
+            "chunks_indexed": chunks_indexed,
+            "total_store_chunks": len(rag_engine.chunks)
+        }
+    except Exception as e:
+        logger.error(f"Failed to process uploaded file {file.filename}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to ingest document: {str(e)}")
 
 

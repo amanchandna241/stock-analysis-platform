@@ -15,6 +15,7 @@ def test_mcp_tools_discovery():
     assert "alphiq_ml_forecast" in tool_names
     assert "alphiq_dcf_valuation" in tool_names
     assert "alphiq_governance_audit" in tool_names
+    assert "alphiq_rag_search" in tool_names
 
 def test_mcp_direct_tool_execution():
     response = client.post(
