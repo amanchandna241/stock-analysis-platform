@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alphiq-rag-worker
+  namespace: alphiq-prod
+  labels:
+    app: alphiq-rag-worker
+    tier: background-worker
+spec:
+  replicas: 0 # Scales from 0 when idle ($0 cost) up to N when PDFs are queued
+  selector:
+    matchLabels:
+      app: alphiq-rag-worker
+  template:
+    metadata:
+      labels:
+        app: alphiq-rag-worker
+    spec:
+      containers:
+        - name: rag-indexing-worker
+          image: alphiq/backend:latest
+          command: ["python", "-m", "app.workers.rag_indexing_worker"]
+          resources:
+            requests:
+              cpu: "1000m"     # PDF parsing & dense embedding is compute-intensive
+              memory: "1024Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2048Mi"
+---
+# KEDA ScaledObject: Event-driven autoscaling for PDF & filing ingestion
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: alphiq-rag-worker-scaler
+  namespace: alphiq-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: alphiq-rag-worker
+  minReplicaCount: 0 # Scale to ZERO when no documents are pending ($0 cost)
+  maxReplicaCount: 10 # Cap concurrency to protect database/LLM rate limits
+  cooldownPeriod: 60
+  pollingInterval: 15
+  triggers:
+    - type: redis
+      metadata:
+        address: alphiq-redis-svc.alphiq-prod.svc.cluster.local:6379
+        listName: rag_ingest_queue
+        listLength: "5" # Add 1 worker pod for every 5 pending PDF filings

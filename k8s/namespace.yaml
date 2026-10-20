@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: alphiq-prod
+  labels:
+    app.kubernetes.io/part-of: alphiq
+    environment: production

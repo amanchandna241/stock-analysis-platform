@@ -1,0 +1,50 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: alphiq-backend-hpa
+  namespace: alphiq-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: alphiq-backend
+  minReplicas: 3   # High availability base across 3 AZs
+  maxReplicas: 25  # Scaled ceiling during peak Indian market hours (09:15-15:30 IST)
+  metrics:
+    # 1. CPU-based scaling (computation-heavy: ML forecasts, DCF valuation, RAG Cosine math)
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    # 2. Memory-based scaling (large PDF chunk ingestion & high concurrency caching)
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    # Aggressive scale-up to absorb market open surges (09:15 AM IST)
+    scaleUp:
+      stabilizationWindowSeconds: 0 # Immediate response to traffic spikes
+      policies:
+        - type: Percent
+          value: 100 # Double pods quickly if load spikes
+          periodSeconds: 15
+        - type: Pods
+          value: 4
+          periodSeconds: 15
+      selectPolicy: Max
+    # Conservative scale-down to prevent pod flapping & premature cache evictions
+    scaleDown:
+      stabilizationWindowSeconds: 300 # 5-minute cooldown window
+      policies:
+        - type: Percent
+          value: 10 # Gradually step down by 10% per minute
+          periodSeconds: 60
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+      selectPolicy: Min

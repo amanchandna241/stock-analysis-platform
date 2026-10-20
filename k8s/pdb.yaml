@@ -1,0 +1,21 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: alphiq-backend-pdb
+  namespace: alphiq-prod
+spec:
+  minAvailable: 2 # At least 2 backend pods must always remain healthy during node drains
+  selector:
+    matchLabels:
+      app: alphiq-backend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: alphiq-frontend-pdb
+  namespace: alphiq-prod
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: alphiq-frontend
