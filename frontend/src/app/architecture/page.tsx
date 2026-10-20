@@ -22,14 +22,25 @@ export default function ArchitecturePage() {
   return (
     <div className="space-y-8">
       {/* Header Banner */}
-      <div className="bg-[#131822] border border-[#1E2638] rounded-2xl p-6">
-        <div className="flex items-center gap-3 mb-2">
-          <Cpu className="w-6 h-6 text-blue-400" />
-          <h1 className="text-2xl font-black text-white tracking-tight">AWS, Databricks & Open API Enterprise Architecture</h1>
+      <div className="bg-[#131822] border border-[#1E2638] rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <Cpu className="w-6 h-6 text-blue-400" />
+            <h1 className="text-2xl font-black text-white tracking-tight">AWS, Databricks & Open API Enterprise Architecture</h1>
+          </div>
+          <p className="text-xs text-gray-400 max-w-3xl leading-relaxed">
+            Production-grade enterprise cloud architecture blueprint designed for high availability, sub-second query latency, Indian Equities (NSE/BSE), US Equities (USD), Indian Mutual Funds (AMFI), RAG document search, and Databricks factor analytics compatibility.
+          </p>
         </div>
-        <p className="text-xs text-gray-400 max-w-3xl leading-relaxed">
-          Production-grade enterprise cloud architecture blueprint designed for high availability, sub-second query latency, Indian Equities (NSE/BSE), US Equities (USD), Indian Mutual Funds (AMFI), RAG document search, and Databricks factor analytics compatibility.
-        </p>
+        <a
+          href="/rag_system_design_interactive.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-3 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/25 shrink-0"
+        >
+          <Zap className="w-4 h-4 text-amber-300" />
+          <span>Launch RAG System Design Blueprint ⚡</span>
+        </a>
       </div>
 
       {/* Architecture Visual Diagram Box */}

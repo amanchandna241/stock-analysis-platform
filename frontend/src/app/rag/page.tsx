@@ -57,6 +57,16 @@ export default function GlobalRAGPage() {
             >
               Analyze
             </button>
+            <a
+              href="/rag_system_design_interactive.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#1A2234] hover:bg-[#243048] text-cyan-300 border border-cyan-500/30 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0"
+              title="Open full interactive RAG system architecture blueprint"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Interactive Architecture</span>
+            </a>
           </form>
         </div>
 
