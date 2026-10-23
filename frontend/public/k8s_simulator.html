@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alphiq • Kubernetes Autoscaling & Chaos Arcade Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07090E;
+      --bg-card: #0E131F;
+      --bg-card-hover: #151D2F;
+      --border-color: #1E283D;
+      --border-accent: rgba(99, 102, 241, 0.4);
+      --primary-blue: #3B82F6;
+      --primary-indigo: #6366F1;
+      --primary-cyan: #06B6D4;
+      --primary-emerald: #10B981;
+      --primary-amber: #F59E0B;
+      --primary-rose: #F43F5E;
+      --text-white: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, rgba(14, 19, 31, 0.95), rgba(21, 29, 47, 0.85));
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px 30px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7);
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: 15%;
+      width: 350px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent 70%);
+      pointer-events: none;
+    }
+
+    .header-left h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #FFFFFF 40%, #A5B4FC 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-left p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-blue { background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-purple { background: rgba(139, 92, 246, 0.2); color: #C4B5FD; border: 1px solid rgba(139, 92, 246, 0.4); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.4); }
+
+    .header-stats {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      background: #090D16;
+      border: 1px solid #1E283D;
+      padding: 10px 18px;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 95px;
+    }
+
+    .stat-pill-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-pill-val {
+      font-size: 18px;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+      color: #FFFFFF;
+      margin-top: 2px;
+    }
+
+    /* Sound and Help Toggles */
+    .icon-btn {
+      background: #151D2F;
+      border: 1px solid #2A3854;
+      color: #94A3B8;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: #1E283D;
+      color: #FFFFFF;
+      border-color: #3B82F6;
+    }
+
+    /* Arcade HUD Command Bar */
+    .hud-controls {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .scenario-buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hud-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-right: 6px;
+    }
+
+    .btn-scenario {
+      background: #090E18;
+      border: 1px solid #1E293E;
+      color: #CBD5E1;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-scenario:hover {
+      background: #162035;
+      border-color: #3B82F6;
+      color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+
+    .btn-scenario.active {
+      background: linear-gradient(135deg, #2563EB, #4F46E5);
+      border-color: #60A5FA;
+      color: #FFFFFF;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-chaos {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      color: #FDA4AF;
+    }
+
+    .btn-chaos:hover {
+      background: rgba(244, 63, 94, 0.3);
+      border-color: #F43F5E;
+      color: #FFFFFF;
+    }
+
+    /* Scaling Mode Switcher */
+    .mode-switch-group {
+      display: flex;
+      background: #090D16;
+      border: 1px solid #1E283D;
+      border-radius: 12px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .btn-mode {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-mode.active {
+      background: #1E293E;
+      color: #38BDF8;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Main Grid Layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 390px;
+      gap: 24px;
+    }
+
+    @media (max-width: 1180px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cluster Arena */
+    .arena-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .arena-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1A2438;
+      padding-bottom: 14px;
+    }
+
+    .arena-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Interactive Traffic Particle Canvas */
+    .canvas-container {
+      position: relative;
+      background: #06090F;
+      border: 1px solid #1A2234;
+      border-radius: 16px;
+      height: 120px;
+      overflow: hidden;
+    }
+
+    canvas#particleCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .traffic-legend {
+      position: absolute;
+      bottom: 8px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      pointer-events: none;
+    }
+
+    /* Nodes & Pods Topology View */
+    .cluster-nodes-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 820px) {
+      .cluster-nodes-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .node-box {
+      background: #0A0E18;
+      border: 1px solid #1C263B;
+      border-radius: 16px;
+      padding: 16px;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .node-box.drained {
+      opacity: 0.4;
+      border-color: #F43F5E;
+      background: #180B0F;
+    }
+
+    .node-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #141D2E;
+    }
+
+    .node-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .node-name {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #E2E8F0;
+    }
+
+    .node-az {
+      font-size: 10px;
+      color: #38BDF8;
+      font-family: 'JetBrains Mono', monospace;
+      background: #101B2E;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .node-drain-btn {
+      background: transparent;
+      border: 1px solid #334155;
+      color: #94A3B8;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .node-drain-btn:hover {
+      background: #F43F5E;
+      border-color: #F43F5E;
+      color: #FFFFFF;
+    }
+
+    /* Pods Grid inside Node */
+    .pods-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      min-height: 140px;
+    }
+
+    .pod-card {
+      background: #101625;
+      border: 1px solid #23314A;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .pod-card:hover {
+      border-color: #3B82F6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+
+    .pod-card.spawning {
+      animation: spawnPop 0.5s ease-out forwards;
+      border-color: #10B981;
+      background: #092018;
+    }
+
+    .pod-card.terminating {
+      animation: terminateFade 0.8s ease-in forwards;
+      border-color: #F43F5E;
+      background: #230B10;
+    }
+
+    .pod-card.resizing {
+      animation: pulseResize 0.6s infinite alternate;
+      border-color: #F59E0B;
+    }
+
+    @keyframes spawnPop {
+      0% { transform: scale(0.6); opacity: 0; }
+      70% { transform: scale(1.08); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes terminateFade {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.7); }
+    }
+
+    @keyframes pulseResize {
+      0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.3); }
+      100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.8); }
+    }
+
+    .pod-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pod-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: #FFFFFF;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .pod-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 6px #10B981;
+    }
+
+    .pod-status-dot.yellow { background: #F59E0B; box-shadow: 0 0 6px #F59E0B; }
+    .pod-status-dot.red { background: #F43F5E; box-shadow: 0 0 6px #F43F5E; }
+
+    /* Meter Bars inside Pod */
+    .meter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meter-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9.5px;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .meter-bar {
+      height: 4px;
+      background: #182338;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    .fill-cpu { background: linear-gradient(90deg, #3B82F6, #60A5FA); }
+    .fill-mem { background: linear-gradient(90deg, #8B5CF6, #C084FC); }
+    .fill-danger { background: linear-gradient(90deg, #F59E0B, #EF4444) !important; }
+
+    /* Interactive Live Sliders Bar */
+    .slider-hud-box {
+      background: #090E17;
+      border: 1px solid #1C263B;
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .slider-hud-box {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .slider-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .slider-val {
+      color: #38BDF8;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: #18243A;
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #3B82F6;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
+      transition: all 0.2s;
+    }
+
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      background: #60A5FA;
+    }
+
+    /* Right Sidebar (Inspector, Badges, YAML) */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #94A3B8;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Gamification Badges */
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .badge-card {
+      background: #090E17;
+      border: 1px solid #1C263B;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0.4;
+      transition: all 0.3s;
+    }
+
+    .badge-card.unlocked {
+      opacity: 1;
+      border-color: #3B82F6;
+      background: linear-gradient(135deg, #0F1A2E, #142442);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+
+    .badge-icon {
+      font-size: 20px;
+    }
+
+    .badge-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: #F8FAFC;
+    }
+
+    .badge-status {
+      font-size: 9px;
+      color: var(--text-dim);
+    }
+
+    /* Interactive Live YAML Syncer */
+    .yaml-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .yaml-tab-btn {
+      background: #090E17;
+      border: 1px solid #1E283D;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .yaml-tab-btn.active {
+      background: #1E283D;
+      color: #38BDF8;
+      border-color: #3B82F6;
+    }
+
+    .yaml-viewer {
+      background: #06090F;
+      border: 1px solid #1A2436;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #94A3B8;
+      max-height: 270px;
+      overflow-y: auto;
+      line-height: 1.5;
+      white-space: pre;
+    }
+
+    .yaml-line-hl {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93C5FD;
+      display: block;
+      margin: 0 -14px;
+      padding: 0 14px;
+      border-left: 3px solid #3B82F6;
+      font-weight: 600;
+    }
+
+    /* Explanation Banner */
+    .edu-banner {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8));
+      border: 1px solid #28354D;
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #CBD5E1;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .edu-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .edu-text strong {
+      color: #38BDF8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="header-left">
+        <div class="badge-bar">
+          <span class="badge badge-blue">Kubernetes v1.30</span>
+          <span class="badge badge-purple">HPA / VPA / KEDA Arcade</span>
+          <span class="badge badge-emerald">Zero Downtime Verified</span>
+        </div>
+        <h1>
+          <span>☸️</span>
+          <span>Alphiq Kubernetes Autoscaling Arcade</span>
+        </h1>
+        <p>Interactive gamified simulator for Horizontal Pod Autoscaling (HPA), Vertical Pod Autoscaling (VPA), Pod Disruption Budgets, and High Availability.</p>
+      </div>
+
+      <div class="header-stats">
+        <div class="stat-pill">
+          <span class="stat-pill-label">Cluster Health</span>
+          <span class="stat-pill-val" id="hudHealth" style="color: #34D399;">100%</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-label">Active Pods</span>
+          <span class="stat-pill-val" id="hudReplicas" style="color: #60A5FA;">3</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-label">Avg P99 Latency</span>
+          <span class="stat-pill-val" id="hudLatency" style="color: #A78BFA;">18 ms</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-pill-label">Run Cost / Hr</span>
+          <span class="stat-pill-val" id="hudCost" style="color: #FCD34D;">$0.12</span>
+        </div>
+        <button class="icon-btn" id="soundToggleBtn" onclick="toggleAudio()" title="Toggle Sound FX">
+          🔊
+        </button>
+      </div>
+    </header>
+
+    <!-- Arcade HUD Controls -->
+    <div class="hud-controls">
+      <div class="scenario-buttons">
+        <span class="hud-title">Preset Scenarios:</span>
+        <button class="btn-scenario active" id="scenNormal" onclick="setScenario('normal')">
+          <span>☀️ Normal Load (100 QPS)</span>
+        </button>
+        <button class="btn-scenario" id="scenSurge" onclick="setScenario('surge')">
+          <span>⚡ Market Open Spike (1,500 QPS)</span>
+        </button>
+        <button class="btn-scenario" id="scenBlackSwan" onclick="setScenario('blackswan')">
+          <span>🌪️ Black Swan Crash (3,000 QPS)</span>
+        </button>
+        <button class="btn-scenario" id="scenNight" onclick="setScenario('night')">
+          <span>🌙 Off-Market Night (5 QPS)</span>
+        </button>
+        <button class="btn-scenario btn-chaos" onclick="drainNode('node-2')">
+          <span>💣 Kill / Drain Node 2 (Chaos Test)</span>
+        </button>
+      </div>
+
+      <div class="mode-switch-group">
+        <button class="btn-mode active" id="modeHpa" onclick="setScalingMode('hpa')">
+          Mode: HPA (Horizontal)
+        </button>
+        <button class="btn-mode" id="modeVpa" onclick="setScalingMode('vpa')">
+          Mode: VPA (Vertical)
+        </button>
+        <button class="btn-mode" id="modeVpaSafe" onclick="setScalingMode('safe')">
+          Mode: HPA + VPA (Recommended)
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Arena Panel -->
+      <div class="arena-panel">
+        <div class="arena-header">
+          <div class="arena-title">
+            <span>🌐 Live Cluster Traffic Stream & Availability Zones</span>
+            <span class="badge badge-blue" id="liveQpsBadge">100 QPS • 3 AZs Active</span>
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">
+            HPA Target: <strong style="color: #60A5FA;">70% CPU</strong> | CoolDown: <strong style="color: #F59E0B;">300s</strong>
+          </div>
+        </div>
+
+        <!-- Animated Particle Canvas -->
+        <div class="canvas-container">
+          <canvas id="particleCanvas"></canvas>
+          <div class="traffic-legend">
+            <span>[Edge: CloudFront]</span>
+            <span>➔ Layer-7 ALB Load Balancer ➔</span>
+            <span>[Worker Nodes: AZ-a, AZ-b, AZ-c]</span>
+          </div>
+        </div>
+
+        <!-- 3 Availability Zone Nodes Topology -->
+        <div class="cluster-nodes-container">
+          <!-- Node 1 -->
+          <div class="node-box" id="node-1">
+            <div class="node-header">
+              <div class="node-title-group">
+                <span style="font-size: 14px;">🖥️</span>
+                <span class="node-name">Worker Node 1</span>
+                <span class="node-az">ap-south-1a</span>
+              </div>
+              <button class="node-drain-btn" onclick="drainNode('node-1')">Drain</button>
+            </div>
+            <div class="pods-grid" id="node1-pods"></div>
+          </div>
+
+          <!-- Node 2 -->
+          <div class="node-box" id="node-2">
+            <div class="node-header">
+              <div class="node-title-group">
+                <span style="font-size: 14px;">🖥️</span>
+                <span class="node-name">Worker Node 2</span>
+                <span class="node-az">ap-south-1b</span>
+              </div>
+              <button class="node-drain-btn" onclick="drainNode('node-2')">Drain</button>
+            </div>
+            <div class="pods-grid" id="node2-pods"></div>
+          </div>
+
+          <!-- Node 3 -->
+          <div class="node-box" id="node-3">
+            <div class="node-header">
+              <div class="node-title-group">
+                <span style="font-size: 14px;">🖥️</span>
+                <span class="node-name">Worker Node 3</span>
+                <span class="node-az">ap-south-1c</span>
+              </div>
+              <button class="node-drain-btn" onclick="drainNode('node-3')">Drain</button>
+            </div>
+            <div class="pods-grid" id="node3-pods"></div>
+          </div>
+        </div>
+
+        <!-- Manual Sliders HUD -->
+        <div class="slider-hud-box">
+          <div class="slider-item">
+            <div class="slider-label-row">
+              <span>Traffic Load (QPS / RPS)</span>
+              <span class="slider-val" id="lblQps">100 QPS</span>
+            </div>
+            <input type="range" id="sliderQps" min="10" max="3500" value="100" oninput="onQpsSliderChange(this.value)">
+          </div>
+
+          <div class="slider-item">
+            <div class="slider-label-row">
+              <span>Single Pod CPU Request</span>
+              <span class="slider-val" id="lblCpu">500m (0.5 vCPU)</span>
+            </div>
+            <input type="range" id="sliderCpu" min="200" max="2000" step="100" value="500" oninput="onCpuSliderChange(this.value)">
+          </div>
+
+          <div class="slider-item">
+            <div class="slider-label-row">
+              <span>Single Pod RAM Request</span>
+              <span class="slider-val" id="lblMem">512 MiB</span>
+            </div>
+            <input type="range" id="sliderMem" min="256" max="2048" step="128" value="512" oninput="onMemSliderChange(this.value)">
+          </div>
+        </div>
+
+        <!-- Educational Insight Banner -->
+        <div class="edu-banner">
+          <div class="edu-icon">💡</div>
+          <div class="edu-text" id="eduBannerText">
+            <strong>HPA Dynamic Balancing Active:</strong> 3 backend pods are evenly distributed across AZ-a, AZ-b, and AZ-c via <code>podAntiAffinity</code>. Each pod uses 500m CPU requests and handles ~60-80 QPS safely within a 70% target utilization threshold.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="sidebar">
+        <!-- Gamification Achievements -->
+        <div class="panel">
+          <div class="panel-title">
+            <span>🏆 Arcade Achievements</span>
+            <span style="font-size: 11px; color: #38BDF8;" id="badgeCount">1 / 4</span>
+          </div>
+          <div class="badges-grid">
+            <div class="badge-card unlocked" id="badgeHA">
+              <div class="badge-icon">🛡️</div>
+              <div>
+                <div class="badge-name">HA Master</div>
+                <div class="badge-status" style="color: #34D399;">Unlocked (3 AZs)</div>
+              </div>
+            </div>
+
+            <div class="badge-card" id="badgeSurge">
+              <div class="badge-icon">⚡</div>
+              <div>
+                <div class="badge-name">Surge Hero</div>
+                <div class="badge-status">Trigger 1500 QPS</div>
+              </div>
+            </div>
+
+            <div class="badge-card" id="badgeDrain">
+              <div class="badge-icon">💣</div>
+              <div>
+                <div class="badge-name">PDB Shield</div>
+                <div class="badge-status">Survive Node Drain</div>
+              </div>
+            </div>
+
+            <div class="badge-card" id="badgeFinops">
+              <div class="badge-icon">💰</div>
+              <div>
+                <div class="badge-name">FinOps Ninja</div>
+                <div class="badge-status">Scale down at Night</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Manifest Inspector -->
+        <div class="panel">
+          <div class="panel-title">
+            <span>📜 Live K8s Manifest Syncer</span>
+            <span class="badge badge-purple" style="font-size: 9px;">Syncing with Cluster</span>
+          </div>
+
+          <div class="yaml-tabs">
+            <button class="yaml-tab-btn active" id="tabHpa" onclick="switchYamlTab('hpa')">backend-hpa.yaml</button>
+            <button class="yaml-tab-btn" id="tabDeploy" onclick="switchYamlTab('deploy')">deployment.yaml</button>
+            <button class="yaml-tab-btn" id="tabVpa" onclick="switchYamlTab('vpa')">backend-vpa.yaml</button>
+          </div>
+
+          <div class="yaml-viewer" id="yamlContent"></div>
+        </div>
+
+        <!-- Sizing Cheat-Sheet -->
+        <div class="panel" style="font-size: 11.5px; color: var(--text-muted); line-height: 1.6;">
+          <div class="panel-title">
+            <span>📐 Production Rules of Thumb</span>
+          </div>
+          <p style="margin-bottom: 8px;">
+            • <strong>1 Process Per Pod:</strong> Run 1 FastAPI Uvicorn process per container. Let Kubernetes scale pods horizontally instead of multi-threading inside a fat container.
+          </p>
+          <p style="margin-bottom: 8px;">
+            • <strong>Requests vs Limits:</strong> Set CPU request = <code>500m</code> and limit = <code>1000m</code>. Never leave limits blank or risk CPU starvation.
+          </p>
+          <p>
+            • <strong>PDB `minAvailable: 2`:</strong> Ensures that node rolling upgrades and Karpenter consolidation never drain the last available backend replica.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- State Variables ---
+    let qps = 100;
+    let targetReplicas = 3;
+    let currentReplicas = 3;
+    let scalingMode = 'hpa'; // 'hpa', 'vpa', 'safe'
+    let soundEnabled = true;
+    let currentYamlTab = 'hpa';
+    let drainedNodes = new Set();
+    let audioCtx = null;
+
+    let pods = [
+      { id: 'pod-1', node: 'node-1', cpu: 45, mem: 48, status: 'ready', cpuAlloc: 500, memAlloc: 512 },
+      { id: 'pod-2', node: 'node-2', cpu: 42, mem: 46, status: 'ready', cpuAlloc: 500, memAlloc: 512 },
+      { id: 'pod-3', node: 'node-3', cpu: 48, mem: 50, status: 'ready', cpuAlloc: 500, memAlloc: 512 }
+    ];
+
+    const badges = {
+      ha: true,
+      surge: false,
+      drain: false,
+      finops: false
+    };
+
+    // --- Audio Synthesis via Web Audio API ---
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(freq, type, duration, vol = 0.1) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function toggleAudio() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundToggleBtn').textContent = soundEnabled ? '🔊' : '🔇';
+      if (soundEnabled) playTone(440, 'sine', 0.1, 0.1);
+    }
+
+    // --- Scenarios Handler ---
+    function setScenario(scen) {
+      document.querySelectorAll('.btn-scenario').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById(
+        scen === 'normal' ? 'scenNormal' :
+        scen === 'surge' ? 'scenSurge' :
+        scen === 'blackswan' ? 'scenBlackSwan' : 'scenNight'
+      );
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (scen === 'normal') {
+        qps = 100;
+        document.getElementById('eduBannerText').innerHTML =
+          '<strong>Normal Load (100 QPS):</strong> Steady trading volume. 3 replicas easily handle traffic across 3 AZs with ~45% CPU load. Sub-20ms latency.';
+      } else if (scen === 'surge') {
+        qps = 1500;
+        playTone(600, 'triangle', 0.25, 0.15);
+        document.getElementById('eduBannerText').innerHTML =
+          '<strong>⚡ Market Open Surge (1,500 QPS at 09:15 IST):</strong> CPU spikes to 90%! HPA triggers immediate scaleUp behavior with 0s stabilization window, rapidly scaling from 3 to 15 pods!';
+        unlockBadge('surge');
+      } else if (scen === 'blackswan') {
+        qps = 3000;
+        playTone(300, 'sawtooth', 0.4, 0.2);
+        document.getElementById('eduBannerText').innerHTML =
+          '<strong>🌪️ Black Swan Event (3,000 QPS):</strong> Extreme panic trading volume. Cluster expands up to <code>maxReplicas: 25</code>. All worker nodes run at full capacity!';
+        unlockBadge('surge');
+      } else if (scen === 'night') {
+        qps = 15;
+        document.getElementById('eduBannerText').innerHTML =
+          '<strong>🌙 Off-Market Night (15 QPS):</strong> Traffic subsides. HPA 5-minute cooldown (<code>stabilizationWindowSeconds: 300</code>) safely scales replicas down to <code>minReplicas: 3</code>, saving 80% on compute cost.';
+        unlockBadge('finops');
+      }
+
+      document.getElementById('sliderQps').value = qps;
+      document.getElementById('lblQps').textContent = qps + ' QPS';
+      recalculateCluster();
+    }
+
+    function onQpsSliderChange(val) {
+      qps = parseInt(val);
+      document.getElementById('lblQps').textContent = qps + ' QPS';
+      document.querySelectorAll('.btn-scenario').forEach(b => b.classList.remove('active'));
+      recalculateCluster();
+    }
+
+    function onCpuSliderChange(val) {
+      document.getElementById('lblCpu').textContent = val + 'm (' + (val / 1000).toFixed(1) + ' vCPU)';
+      pods.forEach(p => p.cpuAlloc = parseInt(val));
+      recalculateCluster();
+    }
+
+    function onMemSliderChange(val) {
+      document.getElementById('lblMem').textContent = val + ' MiB';
+      pods.forEach(p => p.memAlloc = parseInt(val));
+      recalculateCluster();
+    }
+
+    // --- Mode Switcher ---
+    function setScalingMode(mode) {
+      scalingMode = mode;
+      document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+      if (mode === 'hpa') {
+        document.getElementById('modeHpa').classList.add('active');
+        document.getElementById('eduBannerText').innerHTML =
+          '<strong>Horizontal Pod Autoscaling (HPA):</strong> Scales replica counts horizontally based on CPU/RAM. Zero downtime during scaling events.';
+      } else if (mode === 'vpa') {
+        document.getElementById('modeVpa').classList.add('active');
+        document.getElementById('eduBannerText').innerHTML =
+          '<strong>⚠️ VPA in Auto Mode (Danger):</strong> When traffic surges, VPA kills and recreates pods to increase their memory/CPU in-place, causing transient connection drops!';
+        playTone(220, 'square', 0.3, 0.2);
+      } else if (mode === 'safe') {
+        document.getElementById('modeVpaSafe').classList.add('active');
+        document.getElementById('eduBannerText').innerHTML =
+          '<strong>🛡️ HPA + VPA (Recommended Best Practice):</strong> HPA handles real-time scaling; VPA operates in <code>updateMode: "Off"</code> to recommend ideal sizing without restarts.';
+        playTone(523, 'sine', 0.15, 0.1);
+      }
+      recalculateCluster();
+    }
+
+    // --- Chaos Engineering: Drain Node ---
+    function drainNode(nodeId) {
+      if (drainedNodes.has(nodeId)) {
+        drainedNodes.delete(nodeId);
+        document.getElementById(nodeId).classList.remove('drained');
+        document.querySelector(`#${nodeId} .node-drain-btn`).textContent = 'Drain';
+        playTone(480, 'sine', 0.1, 0.1);
+      } else {
+        drainedNodes.add(nodeId);
+        document.getElementById(nodeId).classList.add('drained');
+        document.querySelector(`#${nodeId} .node-drain-btn`).textContent = 'Uncordon';
+        playTone(200, 'sawtooth', 0.3, 0.2);
+        unlockBadge('drain');
+
+        // Pod Disruption Budget protects minimum available:
+        document.getElementById('eduBannerText').innerHTML =
+          `<strong>🛡️ Pod Disruption Budget (PDB) Activated:</strong> ${nodeId} drained. PDB ensures <code>minAvailable: 2</code> pods remain healthy at all times. Evicted pods are rescheduled onto surviving nodes with ZERO dropped requests!`;
+      }
+      recalculateCluster();
+    }
+
+    // --- Core Calculation & Simulator Logic ---
+    function recalculateCluster() {
+      const activeNodes = ['node-1', 'node-2', 'node-3'].filter(n => !drainedNodes.has(n));
+      const effectiveNodes = activeNodes.length > 0 ? activeNodes : ['node-1'];
+
+      // In HPA: Target replicas based on 75 QPS per pod capacity
+      if (scalingMode === 'hpa' || scalingMode === 'safe') {
+        targetReplicas = Math.max(3, Math.min(25, Math.ceil(qps / 75)));
+      } else {
+        // In pure VPA mode, replicas remain fixed at 3, but CPU/RAM per pod scales vertically
+        targetReplicas = 3;
+      }
+
+      // Reconcile pods array
+      while (pods.length < targetReplicas) {
+        const nextId = 'pod-' + (Math.floor(Math.random() * 8999) + 1000);
+        const assignedNode = effectiveNodes[(pods.length) % effectiveNodes.length];
+        pods.push({
+          id: nextId,
+          node: assignedNode,
+          cpu: 65,
+          mem: 60,
+          status: 'spawning',
+          cpuAlloc: 500,
+          memAlloc: 512
+        });
+        playTone(550 + (pods.length * 30), 'sine', 0.1, 0.08);
+      }
+
+      while (pods.length > targetReplicas) {
+        const removed = pods.pop();
+      }
+
+      // If a node was drained, migrate its pods to healthy nodes
+      pods.forEach((p, idx) => {
+        if (drainedNodes.has(p.node)) {
+          p.node = effectiveNodes[idx % effectiveNodes.length];
+          p.status = 'spawning';
+        }
+      });
+
+      // Calculate CPU and Memory per pod
+      const qpsPerPod = qps / Math.max(1, pods.length);
+      const rawCpuPercent = Math.min(98, Math.round((qpsPerPod / 80) * 65));
+      const rawMemPercent = Math.min(95, Math.round(40 + (qpsPerPod * 0.25)));
+
+      pods.forEach(p => {
+        p.cpu = rawCpuPercent;
+        p.mem = rawMemPercent;
+      });
+
+      // Update HUD metrics
+      const health = drainedNodes.size >= 2 ? 65 : (rawCpuPercent > 90 ? 82 : 100);
+      const p99 = Math.round(14 + (rawCpuPercent > 80 ? (rawCpuPercent - 80) * 1.8 : 0));
+      const costPerHr = (pods.length * 0.04).toFixed(2);
+
+      document.getElementById('hudHealth').textContent = health + '%';
+      document.getElementById('hudHealth').style.color = health === 100 ? '#34D399' : (health > 75 ? '#F59E0B' : '#F43F5E');
+      document.getElementById('hudReplicas').textContent = pods.length;
+      document.getElementById('hudLatency').textContent = p99 + ' ms';
+      document.getElementById('hudCost').textContent = '$' + costPerHr;
+      document.getElementById('liveQpsBadge').textContent = `${qps} QPS • ${effectiveNodes.length} Node(s) Active`;
+
+      renderPods();
+      updateYamlView();
+    }
+
+    function renderPods() {
+      ['node1-pods', 'node2-pods', 'node3-pods'].forEach(id => {
+        document.getElementById(id).innerHTML = '';
+      });
+
+      pods.forEach(p => {
+        const targetNodeContainer = document.getElementById(p.node.replace('-', '') + '-pods');
+        if (!targetNodeContainer) return;
+
+        const podEl = document.createElement('div');
+        podEl.className = 'pod-card ' + (p.status === 'spawning' ? 'spawning' : '');
+
+        const isDangerCpu = p.cpu > 80;
+        const isDangerMem = p.mem > 85;
+
+        podEl.innerHTML = `
+          <div class="pod-top">
+            <span class="pod-name">${p.id}</span>
+            <span class="pod-status-dot ${isDangerCpu ? 'red' : (p.cpu > 65 ? 'yellow' : '')}"></span>
+          </div>
+          <div class="meter-group">
+            <div class="meter-row">
+              <span>CPU</span>
+              <span>${p.cpu}%</span>
+            </div>
+            <div class="meter-bar">
+              <div class="meter-fill fill-cpu ${isDangerCpu ? 'fill-danger' : ''}" style="width: ${p.cpu}%;"></div>
+            </div>
+          </div>
+          <div class="meter-group">
+            <div class="meter-row">
+              <span>RAM</span>
+              <span>${p.mem}%</span>
+            </div>
+            <div class="meter-bar">
+              <div class="meter-fill fill-mem ${isDangerMem ? 'fill-danger' : ''}" style="width: ${p.mem}%;"></div>
+            </div>
+          </div>
+        `;
+
+        targetNodeContainer.appendChild(podEl);
+      });
+    }
+
+    function unlockBadge(key) {
+      if (key === 'surge' && !badges.surge) {
+        badges.surge = true;
+        document.getElementById('badgeSurge').classList.add('unlocked');
+        document.querySelector('#badgeSurge .badge-status').textContent = 'Unlocked (1500+ QPS)';
+        document.querySelector('#badgeSurge .badge-status').style.color = '#34D399';
+        playTone(880, 'sine', 0.2, 0.15);
+      }
+      if (key === 'drain' && !badges.drain) {
+        badges.drain = true;
+        document.getElementById('badgeDrain').classList.add('unlocked');
+        document.querySelector('#badgeDrain .badge-status').textContent = 'Unlocked (PDB Protected)';
+        document.querySelector('#badgeDrain .badge-status').style.color = '#34D399';
+        playTone(740, 'sine', 0.2, 0.15);
+      }
+      if (key === 'finops' && !badges.finops) {
+        badges.finops = true;
+        document.getElementById('badgeFinops').classList.add('unlocked');
+        document.querySelector('#badgeFinops .badge-status').textContent = 'Unlocked ($0.12/hr Night)';
+        document.querySelector('#badgeFinops .badge-status').style.color = '#34D399';
+        playTone(920, 'sine', 0.2, 0.15);
+      }
+      const count = Object.values(badges).filter(Boolean).length;
+      document.getElementById('badgeCount').textContent = `${count} / 4`;
+    }
+
+    // --- YAML Tab Switcher & Live Highlight ---
+    function switchYamlTab(tab) {
+      currentYamlTab = tab;
+      document.querySelectorAll('.yaml-tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+      updateYamlView();
+    }
+
+    function updateYamlView() {
+      const viewer = document.getElementById('yamlContent');
+      if (currentYamlTab === 'hpa') {
+        viewer.innerHTML = `apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: alphiq-backend-hpa
+  namespace: alphiq-prod
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: alphiq-backend
+<span class="yaml-line-hl">  minReplicas: 3
+  maxReplicas: 25</span>
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+<span class="yaml-line-hl">      target:
+        type: Utilization
+        averageUtilization: 70</span>
+  behavior:
+    scaleUp:
+<span class="yaml-line-hl">      stabilizationWindowSeconds: 0 # Instant surge response</span>
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+<span class="yaml-line-hl">      stabilizationWindowSeconds: 300 # 5min cooldown</span>`;
+      } else if (currentYamlTab === 'deploy') {
+        viewer.innerHTML = `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alphiq-backend
+  namespace: alphiq-prod
+spec:
+<span class="yaml-line-hl">  replicas: ${pods.length} # Current active replicas</span>
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 0
+  template:
+    spec:
+      containers:
+      - name: fastapi-engine
+        image: alphiq/backend:latest
+        resources:
+<span class="yaml-line-hl">          requests:
+            cpu: "${document.getElementById('lblCpu').textContent.split(' ')[0]}"
+            memory: "${document.getElementById('lblMem').textContent}"
+          limits:
+            cpu: "1000m"
+            memory: "1024Mi"</span>`;
+      } else if (currentYamlTab === 'vpa') {
+        viewer.innerHTML = `apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: alphiq-backend-vpa
+  namespace: alphiq-prod
+spec:
+  targetRef:
+    kind: Deployment
+    name: alphiq-backend
+  updatePolicy:
+<span class="yaml-line-hl">    # "${scalingMode === 'vpa' ? 'Auto' : 'Off'}" mode
+    updateMode: "${scalingMode === 'vpa' ? 'Auto' : 'Off'}"</span>
+  resourcePolicy:
+    containerPolicies:
+    - containerName: fastapi-engine
+      minAllowed:
+        cpu: "250m"
+        memory: "384Mi"
+      maxAllowed:
+        cpu: "4000m"
+        memory: "4096Mi"`;
+      }
+    }
+
+    // --- Particle Stream Animation Canvas ---
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function createParticle() {
+      return {
+        x: 20,
+        y: canvas.height * (0.3 + Math.random() * 0.4),
+        speed: 3 + Math.random() * 4,
+        radius: 2 + Math.random() * 2,
+        color: Math.random() > 0.3 ? '#60A5FA' : '#A78BFA'
+      };
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw subtle grid lines
+      ctx.strokeStyle = '#101726';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+
+      // Spawn rate based on QPS
+      const spawnChance = Math.min(0.9, qps / 600);
+      if (Math.random() < spawnChance) {
+        particles.push(createParticle());
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.speed;
+
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Glow trail
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(p.x - p.speed * 2, p.y);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+
+        if (p.x > canvas.width - 20) {
+          particles.splice(i, 1);
+        }
+      }
+
+      requestAnimationFrame(animateParticles);
+    }
+
+    // Initialize on load
+    window.onload = function() {
+      recalculateCluster();
+      animateParticles();
+    };
+  </script>
+</body>
+</html>

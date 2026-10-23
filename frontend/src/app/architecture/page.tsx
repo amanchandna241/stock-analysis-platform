@@ -32,15 +32,26 @@ export default function ArchitecturePage() {
             Production-grade enterprise cloud architecture blueprint designed for high availability, sub-second query latency, Indian Equities (NSE/BSE), US Equities (USD), Indian Mutual Funds (AMFI), RAG document search, and Databricks factor analytics compatibility.
           </p>
         </div>
-        <a
-          href="/rag_system_design_interactive.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-3 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/25 shrink-0"
-        >
-          <Zap className="w-4 h-4 text-amber-300" />
-          <span>Launch RAG System Design Blueprint ⚡</span>
-        </a>
+        <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+          <a
+            href="/k8s_simulator.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-teal-500/20 shrink-0"
+            title="Launch interactive gamified Kubernetes Autoscaling & Chaos Arcade"
+          >
+            <span>☸️ K8s Arcade Simulator</span>
+          </a>
+          <a
+            href="/rag_system_design_interactive.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/25 shrink-0"
+          >
+            <Zap className="w-4 h-4 text-amber-300" />
+            <span>RAG Blueprint ⚡</span>
+          </a>
+        </div>
       </div>
 
       {/* Architecture Visual Diagram Box */}
